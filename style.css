@@ -1,0 +1,13 @@
+textarea {
+    resize: none;
+    font-family: monospace;
+}
+
+#output {
+    text-align: end;
+}
+
+button {
+    color: black;
+    border-radius:5px;
+}
