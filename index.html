@@ -11,74 +11,75 @@
     </head>
 
     <body>
-        <h1>Calculator</h1>
-        <hr>
+        <div class="calculator">
+            <div class="displays">
+                <label for="input"></label>
+                <textarea id="input" rows="4" readonly></textarea>
+                <label for="output"></label>
+                <textarea id="output" rows="1" readonly></textarea>
+            </div>
+            <hr>
 
-        <label for="input"></label>
-        <textarea id="input" cols="50" rows="4" readonly></textarea>
-        <br>
-        <label for="output"></label>
-        <textarea id="output" cols="50" rows="1" readonly></textarea>
-        <hr>
+            <div class="buttons1">
+                <button id="shift" onclick="'shift'">Shift</button>
+                <button id="settings" onclick="'settings'">Settings</button>
+            </div>
 
-<!--        top part -->
-        <button id="reciprocal" onclick="'take the reciprocal'">x⁻¹</button>
-        <button id="ln" onclick="''">lnx</button>
-        <button id="lg" onclick="''">log₁₀x</button>
-        <button id="log" onclick="''">logᵧx</button>
-        <button id="10" onclick="addToInput('E')">x10ˣ</button>
-        <br>
+<!--            top part -->
+            <div class="buttons2">
+                <button id="reciprocal" onclick="'take the reciprocal'">x⁻¹</button>
+                <button id="ln" onclick="''">lnx</button>
+                <button id="lg" onclick="''">log₁₀x</button>
+                <button id="log" onclick="''">logᵧx</button>
+                <button id="10" onclick="addToInput('E')">x10ˣ</button>
 
-        <button id="sin" onclick="('sin')">sin</button>
-        <button id="cos" onclick="('cos')">cos</button>
-        <button id="tan" onclick="('tan')">tan</button>
-        <button id="%" onclick="addToInput('%')">%</button>
-        <button id="!" onclick="addToInput('!')">!</button>
-        <br>
+                <button id="sin" onclick="addFuncToInput('sin')">sin</button>
+                <button id="cos" onclick="addFuncToInput('cos')">cos</button>
+                <button id="tan" onclick="addFuncToInput('tan')">tan</button>
+                <button id="%" onclick="addToInput('%')">%</button>
+                <button id="!" onclick="addToInput('!')">!</button>
 
-        <button id="sqr" onclick="('sqr')">x²</button>
-        <button id="cbr" onclick="('cbr')">x³</button>
-        <button id="sqrt" onclick="('sqrt')">²√x</button>
-        <button id="cbrt" onclick="('cbrt')">³√x</button>
-        <button id="root" onclick="('root')">ʸ√x</button>
-        <br>
+                <button id="sqr" onclick="addFuncToInput('sqr')">x²</button>
+                <button id="cbr" onclick="addFuncToInput('cube')">x³</button>
+                <button id="sqrt" onclick="addFuncToInput('sqrt')">√x</button>
+                <button id="cbrt" onclick="addFuncToInput('cbrt')">³√x</button>
+                <button id="root" onclick="('root')">ʸ√x</button>
 
-        <button id="(" onclick="addToInput('(')">(</button>
-        <button id=")" onclick="addToInput(')')">)</button>
-        <button id="^" onclick="addToInput('^')">^</button>
-        <button id="pi" onclick="">π</button>
-        <button id="e" onclick="">e</button>
-        <br><br>
+                <button id="(" onclick="addToInput('(')">(</button>
+                <button id=")" onclick="addToInput(')')">)</button>
+                <button id="^" onclick="addToInput('^')">^</button>
+                <button id="pi" onclick="">π</button>
+                <button id="e" onclick="">e</button>
+            </div>
 
-<!--        number pad -->
-        <button id="7" onclick="addToInput('7')">7</button>
-        <button id="8" onclick="addToInput('8')">8</button>
-        <button id="9" onclick="addToInput('9')">9</button>
-        <button id="DEL" onclick="deleteInput()">DEL</button>
-        <button id="AC" onclick="clearInput()">AC</button>
-        <br>
+<!--            number pad-->
+            <div class="buttons3">
+                <button id="7" onclick="addToInput('7')">7</button>
+                <button id="8" onclick="addToInput('8')">8</button>
+                <button id="9" onclick="addToInput('9')">9</button>
+                <button id="DEL" onclick="deleteInput()">DEL</button>
+                <button id="AC" onclick="clearInput()">AC</button>
 
-        <button id="4" onclick="addToInput('4')">4</button>
-        <button id="5" onclick="addToInput('5')">5</button>
-        <button id="6" onclick="addToInput('6')">6</button>
-        <button id="*" onclick="addToInput('*')">*</button>
-        <button id="/" onclick="addToInput('/')">/</button>
-        <br>
+                <button id="4" onclick="addToInput('4')">4</button>
+                <button id="5" onclick="addToInput('5')">5</button>
+                <button id="6" onclick="addToInput('6')">6</button>
+                <button id="*" onclick="addToInput('*')">*</button>
+                <button id="/" onclick="addToInput('/')">/</button>
 
-        <button id="1" onclick="addToInput('1')">1</button>
-        <button id="2" onclick="addToInput('2')">2</button>
-        <button id="3" onclick="addToInput('3')">3</button>
-        <button id="+" onclick="addToInput('+')">+</button>
-        <button id="-" onclick="addToInput('-')">-</button>
-        <br>
+                <button id="1" onclick="addToInput('1')">1</button>
+                <button id="2" onclick="addToInput('2')">2</button>
+                <button id="3" onclick="addToInput('3')">3</button>
+                <button id="+" onclick="addToInput('+')">+</button>
+                <button id="-" onclick="addToInput('-')">-</button>
 
-        <button id="0" onclick="addToInput('0')">0</button>
-        <button id="." onclick="addToInput('.')">.</button>
-        <button id="null">[]</button>
-        <button id="ans" onclick="getAns()">ANS</button>
-        <button id="=" onclick="evaluateHTML()">=</button>
-        <hr>
+                <button id="0" class="rowspan2" onclick="addToInput('0')">0</button>
+                <button id="." onclick="addToInput('.')">.</button>
+                <button id="ans" onclick="getAns()">ANS</button>
+                <button id="=" onclick="evaluateHTML()">=</button>
+            </div>
+            <hr>
 
-        <script src="calculator.js"></script>
+            <script src="calculator.js"></script>
+        </div>
     </body>
 </html>

@@ -1,62 +1,87 @@
 let values = []
 let operators = []
 
+// evaluate: Array[String...] -> Number | String
 function evaluate(expression) {
     try {
-        return tryEvaluate(expression)
+        let res = tryEvaluate(expression)
+        return Math.round(res * 1e12) / 1e12;
     } catch (e) {
-        return e.toString()
+        return e.message
     }
 }
 
+// tryEvaluate: Array[String...] -> Number
 function tryEvaluate(expression) {
-
     values.length = 0
     operators.length = 0
+
+    // if (expression.length === 0) throw Error("Error 4: Empty expression")
+    if (expression.length === 0) throw Error("")
 
     for (let i = 0; i < expression.length; i++) {
         let c = expression.at(i)
 
-        if (isDigit(c) || c === '.') {
-            let v = c
+        if (c === " ") continue
 
-            while (i + 1 < expression.length && (isDigit(expression.at(i + 1)) || expression.at(i + 1) === '.')) {
-                v += expression.at(i + 1)
+        if (isDigit(c) || c === ".") {
+            let v = c
+            let hasDot = c === "."
+
+            while (i + 1 < expression.length && (isDigit(expression.at(i + 1)) || expression.at(i + 1) === ".")) {
+                let newC = expression.at(i + 1)
+
+                if (newC === ".") {
+                    if (hasDot) throw Error("Error 2: Multiple decimal places")
+                    else hasDot = true
+                }
+
+                v += newC
                 i++
             }
 
-            values.push(parseFloat(v)) // TODO: 1.2.3 should return an error
-        } else if (c === '-' && (i === 0 || isOperator(expression.at(i - 1)) || expression.at(i - 1) === '(')) {
+            if (v === ".") throw Error("Error 3: Lone decimal point is not a number")
+
+            values.push(parseFloat(v))
+        } else if (c === "-" && (i === 0 || isOperator(expression.at(i - 1)) || expression.at(i - 1) === "(")) {
             values.push(0)
-            operators.push('-')
+            operators.push("-")
         } else if (isOperator(c)) {
-            while (validExpression(values, operators) && shouldDoReduction(operators[operators.length - 1], c)) {
-                reduce()
+            while (validExpression(values, operators) && shouldDoReduction(operators.at(-1), c)) {
+                reduceExpression()
             }
             operators.push(c);
-        } else if (c === '(') {
+        } else if (c === "(") {
+            if (i !== 0 && !isOperator(expression.at(i - 1))) {
+                operators.push('*');
+            }
             operators.push(c);
-        } else if (c === ')') {
-            while (validExpression(values, operators) && shouldDoReduction(operators[operators.length - 1], c)) {
-                reduce()
+        } else if (c === ")") {
+            while (validExpression(values, operators) && shouldDoReduction(operators.at(-1), c)) {
+                reduceExpression()
             }
             operators.pop()
+            if (i < expression.length - 1 && !isOperator(expression.at(i + 1))) {
+                operators.push('*');
+            }
         }
 
+        // constants
         else if (c === "pi") {
             values.push(Math.PI)
         } else if (c === "e") {
             values.push(Math.E)
         }
 
-        else if (c === '%') {
+        // functions that apply to items already on the stack
+        else if (c === "%") {
             let n = values.pop()
             values.push(n / 100)
-        } else if (c === '!') {
+        } else if (c === "!") {
             let n = values.pop()
 
             if (!Number.isInteger(n) || n < 0) {
-                throw new Error("Invalid factorial")
+                throw new Error("Error 1: Factorial can only be applied to non negative integers")
             }
 
             let newVal = 1
@@ -66,76 +91,117 @@ function tryEvaluate(expression) {
 
             values.push(newVal)
         }
+
+        // functions
+        else if (isFunction(c)) { // TODO doesn't work properly for nested functions
+            let depth = 1
+            let j = i + 2
+
+            while (j < expression.length) {
+                let d = expression.at(j)
+
+                if (d === "(") {
+                    depth++
+                } else if (d === ")") {
+                    depth--
+                }
+
+                if (depth === 0) break
+
+                j++
+            }
+
+            let subExpression = expression.slice(i + 2, j)
+            let n = tryEvaluate(subExpression)
+            // console.log(subExpression)
+            // console.log(c + " " + n)
+
+            values.push(applyFunction(c, n))
+
+            i = j + 1
+        }
     }
 
     while (validExpression(values, operators)) {
-        reduce();
+        reduceExpression();
     }
 
-    // input.value = values.pop();
-    return values.pop();
+    return values.pop()
 }
 
+// Let a Char be a String of length 1
+// isDigit: Char -> Boolean
 function isDigit(c) {
     return /^[0-9]$/.test(c)
 }
 
+// isOperator: Char -> Boolean
 function isOperator(c) {
     return /^[+\-*/^E]$/.test(c)
 }
 
+// isFunction: String -> Boolean
+function isFunction(c) {
+    let validFunctions = ["sqr", "sqrt", "cube", "cbrt", "sin", "cos", "tan"]
+    return validFunctions.includes(c)
+}
+
+// validExpression: Array[Number...] Array[String...] -> Boolean
 function validExpression(values, operators) {
     return operators.length >= 1 && values.length >= 2
 }
 
+// shouldDoReduction: Char Char -> Boolean
 function shouldDoReduction(top, current) {
-    if (top === '(') return false;
-    if (current === ')') return true;
-    if (top === '^' && current === '^') return false;
+    if (top === "(") return false;
+    if (current === ")") return true;
+    if (top === "^" && current === "^") return false;
     return getPriority(top) >= getPriority(current);
 }
 
+// getPriority: Char -> Number
+// priority: (functions, %, !) > (^, E) > (*, /) > (+, -)
 function getPriority(op) {
     switch (op) {
-        case '^':
-        case '!':
-        case 'E':
+        case "^":
+        case "E":
             return 2
-        case '*':
-        case '/':
-        case '%':
+        case "*":
+        case "/":
             return 1
-        case '+':
-        case '-':
+        case "+":
+        case "-":
             return 0
         default:
             throw new Error("Unknown operator: " + op)
     }
 }
 
+// applyOp: Char Number Number -> Number
 function applyOp(op, left, right) {
     switch (op) {
-        case '+':
+        case "+":
             return left + right
-        case '-':
+        case "-":
             return left - right
-        case '*':
+        case "*":
             return left * right
-        case '/':
+        case "/":
             if (right === 0) {
-                throw new Error("Division by zero")
+                throw new Error("Error 0: Division by zero")
             }
             return left / right
-        case '^':
+        case "^":
             return Math.pow(left, right)
-        case 'E':
+        case "E":
             return left * Math.pow(10, right)
         default:
             throw new Error("Unknown operator: " + op)
     }
 }
 
-function reduce() {
+// reduceExpression: void
+function reduceExpression() {
     let right = values.pop()
     let left = values.pop()
     let op = operators.pop()
@@ -144,17 +210,46 @@ function reduce() {
     values.push(reducedValue)
 }
 
+// applyFunction: String Number -> Number
+function applyFunction(func, n) {
+    switch (func) {
+        case "sqr":
+            return n * n
+        case "sqrt":
+            return Math.sqrt(n)
+        case "cube":
+            return n * n * n
+        case "cbrt":
+            return Math.cbrt(n)
+        case "sin":
+            return Math.sin(n * Math.PI / 180)
+        case "cos":
+            return Math.cos(n * Math.PI / 180)
+        case "tan":
+            let m = Math.tan(n * Math.PI / 180)
+            if (m === Infinity || m === -Infinity) throw new Error("Is Infinity")
+            return m
+        case "asin":
+            return Math.asin(n) * 180 / Math.PI
+        case "acos":
+            return Math.acos(n) * 180 / Math.PI
+        case "atan":
+            return Math.atan(n) * 180 / Math.PI
+    }
+}
+
 // order of operations
 console.log(evaluate("1+3^3*4".split(""))) // 109
 console.log(evaluate("1.4+2.6".split(""))) // 4
-console.log(evaluate("0.1+0.2".split(""))) // 0.3 TODO error
-console.log(evaluate("0.1^2".split(""))) // 0.01 TODO error
+console.log(evaluate("0.1+0.2".split(""))) // 0.3
+console.log(evaluate("0.1^2".split(""))) // 0.01
 console.log(evaluate("2^3^2".split(""))) // 512
 console.log(evaluate("(2^3)^2".split(""))) // 64
+console.log(evaluate(".542".split(""))) // 0.542
 console.log(evaluate("      1   +  2   +  3  * 4    - 5      ".split(""))) // 10
 // errors
 console.log(evaluate("1/0".split(""))) // Error
-console.log(evaluate("1.1.3".split(""))) // Error TODO
+console.log(evaluate("1.1.3".split(""))) // Error
 // pi and e
 console.log(evaluate(["pi", "+", "e"])) // 5.860...
 // negatives
@@ -180,16 +275,33 @@ console.log(evaluate("8E-3".split(""))) // 0.008
 console.log(evaluate("-8E-3".split(""))) // -0.008
 console.log(evaluate("2E-3^2".split(""))) // 2e-9
 console.log(evaluate("0.1E^2".split(""))) // 10
-console.log(evaluate("-0.1E^2".split(""))) // -10
-// sqr, cbr, sqrt, cbrt
-// console.log(evaluate(["1", "5", "sqr"])) // 225
+console.log(evaluate("-0.1E^2".split(""))) // -10 TODO error
+// bracket multiplication
+console.log("==========START=======")
+console.log(evaluate("2(3)".split(""))) // 6
+console.log(evaluate("(4)9".split(""))) // 36
+console.log(evaluate("-(5)(3)".split(""))) // 15 TODO error
+console.log(evaluate("-(5)(3)+5".split(""))) // 20 TODO error
+console.log("==========END=======")
+// sqr, cube, sqrt, cbrt, and trig functions
+console.log(evaluate(["sqr", "(", "-", "4", ")"])) // 16
+console.log(evaluate(["sqrt", "(", "9", ")"])) // 3
+console.log(evaluate(["cube", "(", "3", ")"])) // 27
+console.log(evaluate(["cbrt", "(", "-", "6", "4", ")"])) // -4
+console.log(evaluate(["sin", "(", "9", "0", ")"])) // 1
+console.log(evaluate(["sin", "(", "0", ")"])) // 0
+console.log(evaluate(["sin", "(", "4", "5", ")"])) // 0.707...
+console.log(evaluate(["cos", "(", "6", "0", ")"])) // 0.5
+console.log(evaluate(["sin", "(", "6", "0", ")", "-", "cos", "(", "3", "0", ")"])) // 0 TODO error
+console.log(evaluate(["tan", "(", "9", "0", ")"])) // Error TODO Error actual value received
+// console.log(evaluate(["-", "1", "-", "sin", "(", "9", "0", ")"])) // -2
+// console.log(evaluate(["sqrt", "(", "sqr", "(", "-", "1", "-", "sin", "(", "9", "0", ")", ")", "+", "5", ")"])) // 3
 
 
 
 
 
 
-// TODO: variables and functions
 
 // index.html
 const input = document.getElementById("input");
@@ -215,6 +327,38 @@ function addToInput(value) {
     }
 }
 
+function addFuncToInput(value) {
+    output.value = "";
+    stack.push(value)
+    stack.push("(")
+
+    switch (value) {
+        case "sqr":
+            input.value += "[_]²"
+            break
+        case "sqrt":
+            input.value += "√"
+            break
+        case "cube":
+            input.value += "[_]³"
+            break
+        case "cbrt":
+            input.value += "³√"
+            break
+        case "sin":
+        case "cos":
+        case "tan":
+            input.value += value;
+            break
+        case "asin":
+        case "acos":
+        case "atan":
+            input.value += value + "⁻¹";
+    }
+
+    input.value += "(";
+}
+
 function clearInput() {
     output.value = "";
     input.value = "";
@@ -232,5 +376,4 @@ function getAns() {
     let parts = ans.toString().split("")
     stack.push(...parts)
     input.value += "ANS";
-    stack.length = 0;
 }
