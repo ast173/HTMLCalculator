@@ -1,22 +1,25 @@
+:root {
+    --font: "Segoe UI", Tahoma, Geneva, Verdana, serif;
+    --calculator-gradient: linear-gradient(135deg, #BBD2C5, #536976, #292E49);
+    /*background: linear-gradient(135deg, #BBD2C5, #536976, #292E49);*/
+    /*background: linear-gradient(#acb6e5, #86fde8);*/
+    /*background: linear-gradient(#AABFBF, #798844);*/
+    /*--button-gradient: conic-gradient(from var(--angle), blue, purple, purple, blue);*/
+}
+
 body {
-    background-color: rgb(24, 24, 24);
+    background-color: rgb(16, 16, 16);
     display: flex;
 
-    min-height: 200px;
+    min-height: 100vh;
 
     align-items: center;
     justify-content: center;
 }
 
-h1 {
-    color: transparent;
-    font-family: Optima, sans-serif;
-    -webkit-text-stroke: 1px #fff;
-}
-
 textarea {
     resize: none;
-    font-family: Optima, sans-serif, mono;
+    font-family: var(--font);
 }
 
 #output {
@@ -26,13 +29,17 @@ textarea {
 /*buttons (gradient animation, hover color change)*/
 button {
     height: 28px;
+    border-radius:5px;
+
     color: white;
     background: black;
-    border-radius:5px;
+
     cursor: pointer;
     position: relative;
-    font-family: Optima, sans-serif;
+
+    font-family: var(--font);
     font-size: 14px;
+
     transition: background-color 0.4s, color 0.2s;
 }
 
@@ -45,18 +52,20 @@ button:active {
     background-color: rgb(80, 80, 80);
 }
 
-button::after, button::before {
+button::before, button::after {
     content: "";
     position: absolute;
+
     height: 100%;
     width: 100%;
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
     z-index: -1;
+
     border-radius:5px;
     padding: 3px; /*controls thickness*/
-    background-image: conic-gradient(from var(--angle), blue, purple, hotpink, lightblue, blue);
+    background-image: conic-gradient(from var(--angle), blue, purple, purple, blue);
     animation: 3s spin linear infinite;
 }
 
@@ -81,12 +90,35 @@ button::before {
 }
 
 /*divs*/
+.calculator-border {
+    padding: 5px;
+    border-radius: 18px;
+    background: var(--calculator-gradient);
+    position: relative;
+}
+
+.calculator-border::before {
+    content: "";
+    position: absolute;
+
+    inset: -8px;
+    border-radius: 22px;
+    z-index: -1;
+
+    background: var(--calculator-gradient);
+    filter: blur(15px);
+    opacity: 0.75;
+}
+
 .calculator {
-    background: rgb(43, 43, 43);
+    background: rgb(32, 32, 32);
+
     width: 280px;
     border-radius: 15px;
     padding: 20px;
+
     z-index: 0;
+    position: relative;
 }
 
 .displays {
@@ -112,6 +144,7 @@ button::before {
     display: grid;
     grid-template-columns: repeat(5, 1fr);
     gap: 10px;
+    margin-bottom: 12px;
 }
 
 .rowspan2 {

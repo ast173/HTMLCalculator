@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport"
+              content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+        <meta http-equiv="X-UA-Compatible" content="ie=edge">
+        <title>Settings</title>
+
+<!--        <link rel="stylesheet" href="style2.css">-->
+    </head>
+
+    <body>
+        <h1>Settings</h1>
+        <hr>
+
+        <div class="settings">
+            Degrees | Radians
+            <br>
+            Mode: Dark | Light
+            <br>
+            <label for="glowOn">Glow?</label>
+            <input type="checkbox" id="glowOn" checked>
+            <br>
+
+            <label for="bGradOn">Button Gradient?</label>
+            <input type="checkbox" id="bGradOn" checked>
+            <br>
+
+            <label for="bGrad">Button Gradient:</label>
+            <select id="bGrad">
+                <option value="blue purple">Blue/Purple</option>
+            </select>
+            <br>
+
+            <label for="cGradOn">Calculator Gradient?</label>
+            <input type="checkbox" id="cGradOn" checked>
+            <br>
+
+            <label for="cGrad">Calculator Gradient:</label>
+            <select id="cGrad">
+                <option value="water">Water</option>
+                <option value="cotton candy">Cotton Candy</option>
+                <option value="green tea">Green Tea</option>
+            </select>
+            <br>
+
+            <button id="save">Save Changes</button>
+            <br>
+            <button id="reset" onclick="resetSettings()">Reset Changes</button>
+            <br>
+            <button id="back" onclick="location.href='index.html'">Back</button>
+            <br>
+        </div>
+
+        <script src="calculator.js"></script>
+    </body>
+</html>

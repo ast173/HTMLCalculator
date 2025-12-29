@@ -126,7 +126,9 @@ function tryEvaluate(expression) {
         reduceExpression();
     }
 
-    return values.pop()
+    let res = values.pop()
+    if (isNaN(res)) throw Error("Error 4: Result is NaN")
+    return res
 }
 
 // Let a Char be a String of length 1
@@ -142,7 +144,7 @@ function isOperator(c) {
 
 // isFunction: String -> Boolean
 function isFunction(c) {
-    let validFunctions = ["sqr", "sqrt", "cube", "cbrt", "sin", "cos", "tan"]
+    let validFunctions = ["sqr", "sqrt", "cube", "cbrt", "sin", "cos", "tan", "ln", "lg"]
     return validFunctions.includes(c)
 }
 
@@ -235,6 +237,12 @@ function applyFunction(func, n) {
             return Math.acos(n) * 180 / Math.PI
         case "atan":
             return Math.atan(n) * 180 / Math.PI
+        case "ln":
+            if (n <= 0) throw new Error(n + " is outside of the domain for ln");
+            return Math.log(n)
+        case "lg":
+            if (n <= 0) throw new Error(n + " is outside of the domain for log10");
+            return Math.log10(n)
     }
 }
 
@@ -277,12 +285,10 @@ console.log(evaluate("2E-3^2".split(""))) // 2e-9
 console.log(evaluate("0.1E^2".split(""))) // 10
 console.log(evaluate("-0.1E^2".split(""))) // -10 TODO error
 // bracket multiplication
-console.log("==========START=======")
 console.log(evaluate("2(3)".split(""))) // 6
 console.log(evaluate("(4)9".split(""))) // 36
 console.log(evaluate("-(5)(3)".split(""))) // 15 TODO error
 console.log(evaluate("-(5)(3)+5".split(""))) // 20 TODO error
-console.log("==========END=======")
 // sqr, cube, sqrt, cbrt, and trig functions
 console.log(evaluate(["sqr", "(", "-", "4", ")"])) // 16
 console.log(evaluate(["sqrt", "(", "9", ")"])) // 3
@@ -296,6 +302,12 @@ console.log(evaluate(["sin", "(", "6", "0", ")", "-", "cos", "(", "3", "0", ")"]
 console.log(evaluate(["tan", "(", "9", "0", ")"])) // Error TODO Error actual value received
 // console.log(evaluate(["-", "1", "-", "sin", "(", "9", "0", ")"])) // -2
 // console.log(evaluate(["sqrt", "(", "sqr", "(", "-", "1", "-", "sin", "(", "9", "0", ")", ")", "+", "5", ")"])) // 3
+// lg and ln
+console.log("==========START=======")
+console.log(evaluate(["lg", "(", "1", ")"])) // 0
+console.log(evaluate(["ln", "(", "e", ")"])) // 1
+console.log(evaluate(["ln", "(", "e", "*", "2", ")"])) // 1.693147...
+console.log("==========END=======")
 
 
 
@@ -316,14 +328,26 @@ function evaluateHTML() {
 
 function addToInput(value) {
     output.value = "";
+    if (value === "E") {
+        stack.push(value)
+        input.value += "x10^";
+    } else {
+        stack.push(value)
+        input.value += value;
+    }
+}
+
+function addConstToInput(value) {
+    output.value = "";
     switch (value) {
-        case "E":
-            stack.push(value)
-            input.value += "x10^";
-            break;
-        default:
-            stack.push(value)
-            input.value += value;
+        case "pi":
+            stack.push("pi")
+            input.value += "π";
+            break
+        case "e":
+            stack.push("e")
+            input.value += "e";
+            break
     }
 }
 
@@ -354,6 +378,13 @@ function addFuncToInput(value) {
         case "acos":
         case "atan":
             input.value += value + "⁻¹";
+            break
+        case "ln":
+            input.value += "ln"
+            break
+        case "lg":
+            input.value += "log"
+            break
     }
 
     input.value += "(";
@@ -376,4 +407,21 @@ function getAns() {
     let parts = ans.toString().split("")
     stack.push(...parts)
     input.value += "ANS";
+}
+
+// settings
+let angleMeasure = "degrees"
+let mode = "dark"
+let buttonGradientEnabled = true
+let buttonGradient = 0
+let calculatorGradientEnabled = true
+let calculatorGradient = "water"
+
+function resetSettings() {
+    angleMeasure = "degrees"
+    mode = "dark"
+    buttonGradientEnabled = true
+    buttonGradient = 0
+    calculatorGradientEnabled = true
+    calculatorGradient = "water"
 }
