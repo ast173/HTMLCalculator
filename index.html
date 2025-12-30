@@ -20,17 +20,20 @@
                 <hr>
 
                 <div class="buttons1">
-                    <button id="shift" onclick="'shift'">Shift</button>
+                    <button id="shift" onclick="shiftToggle()">Shift</button>
+                    <button id="left-arrow" onclick="'(left)'"><</button>
+                    <button id="right-arrow" onclick="'(right)'">></button>
                     <button id="settings" onclick="location.href='settings.html'">Settings</button>
                 </div>
 
 <!--                top part -->
                 <div class="buttons2">
-                    <button id="reciprocal" onclick="('rec')">x⁻¹</button>
+                    <button id="reciprocal" class="whenShiftOff" onclick="addFuncToInput('rec')">x⁻¹</button>
+                    <button id="abs" class="whenShiftOn" onclick="addFuncToInput('abs')">abs</button>
                     <button id="ln" onclick="addFuncToInput('ln')">lnx</button>
                     <button id="lg" onclick="addFuncToInput('lg')">log₁₀x</button>
                     <button id="log" onclick="('log')">logᵧx</button>
-                    <button id="10" onclick="addToInput('E')">x10ˣ</button>
+                    <button id="x10^" onclick="addToInput('E')">x10ˣ</button>
 
                     <button id="sin" onclick="addFuncToInput('sin')">sin</button>
                     <button id="cos" onclick="addFuncToInput('cos')">cos</button>
@@ -47,6 +50,7 @@
                     <button id="(" onclick="addToInput('(')">(</button>
                     <button id=")" onclick="addToInput(')')">)</button>
                     <button id="^" onclick="addToInput('^')">^</button>
+<!--                    TODO: 9pi only returns pi-->
                     <button id="pi" onclick="addConstToInput('pi')">π</button>
                     <button id="e" onclick="addConstToInput('e')">e</button>
                 </div>

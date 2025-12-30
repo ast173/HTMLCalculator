@@ -1,11 +1,8 @@
-let values = []
-let operators = []
-
 // evaluate: Array[String...] -> Number | String
 function evaluate(expression) {
     try {
         let res = tryEvaluate(expression)
-        return Math.round(res * 1e12) / 1e12;
+        return Math.round(res * 1e15) / 1e15;
     } catch (e) {
         return e.message
     }
@@ -13,8 +10,18 @@ function evaluate(expression) {
 
 // tryEvaluate: Array[String...] -> Number
 function tryEvaluate(expression) {
-    values.length = 0
-    operators.length = 0
+    let values = []
+    let operators = []
+
+    // reduceExpression: void
+    function reduceExpression() {
+        let right = values.pop()
+        let left = values.pop()
+        let op = operators.pop()
+
+        let reducedValue = applyOp(op, left, right)
+        values.push(reducedValue)
+    }
 
     // if (expression.length === 0) throw Error("Error 4: Empty expression")
     if (expression.length === 0) throw Error("")
@@ -58,7 +65,7 @@ function tryEvaluate(expression) {
             operators.push(c);
         } else if (c === ")") {
             while (validExpression(values, operators) && shouldDoReduction(operators.at(-1), c)) {
-                reduceExpression()
+                reduceExpression();
             }
             operators.pop()
             if (i < expression.length - 1 && !isOperator(expression.at(i + 1))) {
@@ -93,10 +100,12 @@ function tryEvaluate(expression) {
         }
 
         // functions
-        else if (isFunction(c)) { // TODO doesn't work properly for nested functions
+        else if (isFunction(c)) {
             let depth = 1
+            // skip the opening bracket
             let j = i + 2
 
+            // index until ending bracket is reached or the end of the expression is reached
             while (j < expression.length) {
                 let d = expression.at(j)
 
@@ -111,19 +120,29 @@ function tryEvaluate(expression) {
                 j++
             }
 
+            // evaluate the expression inside but not including the brackets (i + 2 to j - 1 inclusive)
             let subExpression = expression.slice(i + 2, j)
             let n = tryEvaluate(subExpression)
-            // console.log(subExpression)
-            // console.log(c + " " + n)
+            // console.log("C and N: " + c + " " + n)
 
             values.push(applyFunction(c, n))
 
-            i = j + 1
+            // move the index i to j + 1. The for loop increments by one
+            i = j
         }
+
+        // console.log("Index: " + i)
+        // console.log(`Values: ${values}`)
+        // console.log("Operators: " + operators)
+        // console.log("==============================")
     }
 
     while (validExpression(values, operators)) {
         reduceExpression();
+        // console.log("Index: End")
+        // console.log(`Values: ${values}`)
+        // console.log("Operators: " + operators)
+        // console.log("==============================")
     }
 
     let res = values.pop()
@@ -144,7 +163,7 @@ function isOperator(c) {
 
 // isFunction: String -> Boolean
 function isFunction(c) {
-    let validFunctions = ["sqr", "sqrt", "cube", "cbrt", "sin", "cos", "tan", "ln", "lg"]
+    let validFunctions = ["sqr", "sqrt", "cube", "cbrt", "rec", "sin", "cos", "tan", "ln", "lg", "abs"]
     return validFunctions.includes(c)
 }
 
@@ -202,16 +221,6 @@ function applyOp(op, left, right) {
     }
 }
 
-// reduceExpression: void
-function reduceExpression() {
-    let right = values.pop()
-    let left = values.pop()
-    let op = operators.pop()
-
-    let reducedValue = applyOp(op, left, right)
-    values.push(reducedValue)
-}
-
 // applyFunction: String Number -> Number
 function applyFunction(func, n) {
     switch (func) {
@@ -223,14 +232,16 @@ function applyFunction(func, n) {
             return n * n * n
         case "cbrt":
             return Math.cbrt(n)
+        case "rec":
+            if (n === 0) throw new Error("Error 6: Reciprocal of 0 is undefined")
+            return Math.pow(n, -1)
         case "sin":
             return Math.sin(n * Math.PI / 180)
         case "cos":
             return Math.cos(n * Math.PI / 180)
         case "tan":
-            let m = Math.tan(n * Math.PI / 180)
-            if (m === Infinity || m === -Infinity) throw new Error("Is Infinity")
-            return m
+            if (Math.abs(Math.cos(n * Math.PI / 180)) < 6.125e-17) throw new Error("Error 5: tan(" + n + ") is undefined")
+            return Math.tan(n * Math.PI / 180)
         case "asin":
             return Math.asin(n) * 180 / Math.PI
         case "acos":
@@ -243,6 +254,8 @@ function applyFunction(func, n) {
         case "lg":
             if (n <= 0) throw new Error(n + " is outside of the domain for log10");
             return Math.log10(n)
+        case "abs":
+            return Math.abs(n)
     }
 }
 
@@ -282,8 +295,8 @@ console.log(evaluate("2E5".split(""))) // 200000
 console.log(evaluate("8E-3".split(""))) // 0.008
 console.log(evaluate("-8E-3".split(""))) // -0.008
 console.log(evaluate("2E-3^2".split(""))) // 2e-9
-console.log(evaluate("0.1E^2".split(""))) // 10
-console.log(evaluate("-0.1E^2".split(""))) // -10 TODO error
+console.log(evaluate("0.1E2".split(""))) // 10
+console.log(evaluate("-0.1E2".split(""))) // -10
 // bracket multiplication
 console.log(evaluate("2(3)".split(""))) // 6
 console.log(evaluate("(4)9".split(""))) // 36
@@ -298,16 +311,58 @@ console.log(evaluate(["sin", "(", "9", "0", ")"])) // 1
 console.log(evaluate(["sin", "(", "0", ")"])) // 0
 console.log(evaluate(["sin", "(", "4", "5", ")"])) // 0.707...
 console.log(evaluate(["cos", "(", "6", "0", ")"])) // 0.5
-console.log(evaluate(["sin", "(", "6", "0", ")", "-", "cos", "(", "3", "0", ")"])) // 0 TODO error
-console.log(evaluate(["tan", "(", "9", "0", ")"])) // Error TODO Error actual value received
-// console.log(evaluate(["-", "1", "-", "sin", "(", "9", "0", ")"])) // -2
-// console.log(evaluate(["sqrt", "(", "sqr", "(", "-", "1", "-", "sin", "(", "9", "0", ")", ")", "+", "5", ")"])) // 3
+console.log(evaluate(["sin", "(", "6", "0", ")", "-", "cos", "(", "3", "0", ")"])) // 0
+console.log(evaluate(["tan", "(", "9", "0", ")"])) // Error
+console.log(evaluate(["-", "1", "-", "sin", "(", "9", "0", ")"])) // -2
+console.log(evaluate(["sqrt", "(", "sqr", "(", "-", "1", "-", "sin", "(", "9", "0", ")", ")", "+", "5", ")"])) // 3
 // lg and ln
-console.log("==========START=======")
 console.log(evaluate(["lg", "(", "1", ")"])) // 0
 console.log(evaluate(["ln", "(", "e", ")"])) // 1
 console.log(evaluate(["ln", "(", "e", "*", "2", ")"])) // 1.693147...
-console.log("==========END=======")
+// abs
+console.log(evaluate(["abs", "(", "-", "1", "3", "2", ")"])) // 132
+console.log(evaluate(["abs", "(", "1", "3", "2", ")"])) // 132
+console.log(evaluate(["abs", "(", "cos", "(", "9", "0", ")", ")"])) // 0
+console.log(evaluate(["cbrt", "(", "-", "(", "7", ")", "abs", "(", "-", "sqr", "(", "-", "4", "-", "cbrt", "(", "-", "1", ")", ")", ")", "-", "1", ")", ")"])) // -4
+// rec
+console.log(evaluate(["rec", "(", "1", ")"])) // 1
+console.log(evaluate(["rec", "(", "0", ")"])) // Error
+console.log(evaluate(["rec", "(", "2", "0", ")"])) // 0.05
+
+
+
+
+
+// TODO: add sqrt, cbrt, pi, log, trig functions, and absolute value |-3|
+// TODO: make a setting to disable the action where enter on a button presses the button
+// Keyboard inputs
+document.addEventListener("keydown", e => {
+    if (/^[0-9.+\-*/^()]$/.test(e.key)) {
+        addToInput(e.key)
+    } else if (e.key === "Enter" || e.key === "=") {
+        evaluateHTML()
+    } else if (e.key === "Backspace" || e.key === "Delete") {
+        deleteInput()
+    } else if (e.key === "Escape") {
+        clearInput()
+    } else if (e.key === "e") {
+        addConstToInput("e")
+    } else if (e.key === "E") {
+        addToInput("E")
+    } else if (e.key === "x" || e.key === "X") {
+        addToInput("*")
+    } else if (e.key === "|") {
+        addFuncToInput("abs")
+    } else if (e.key === "Shift") {
+        shiftToggle()
+    }
+});
+
+
+
+
+
+
 
 
 
@@ -322,8 +377,7 @@ let stack = []
 let ans = 0;
 
 function evaluateHTML() {
-    ans = evaluate(stack)
-    output.value = ans;
+    output.value = evaluate(stack);
 }
 
 function addToInput(value) {
@@ -358,16 +412,22 @@ function addFuncToInput(value) {
 
     switch (value) {
         case "sqr":
-            input.value += "[_]²"
+            // input.value += "[_]²"
+            input.value += "sqr"
             break
         case "sqrt":
             input.value += "√"
             break
         case "cube":
-            input.value += "[_]³"
+            // input.value += "[_]³"
+            input.value += "cube"
             break
         case "cbrt":
             input.value += "³√"
+            break
+        case "rec":
+            // input.value += "[_]⁻¹"
+            input.value += "rec"
             break
         case "sin":
         case "cos":
@@ -384,6 +444,9 @@ function addFuncToInput(value) {
             break
         case "lg":
             input.value += "log"
+            break
+        case "abs":
+            input.value += "abs"
             break
     }
 
@@ -408,6 +471,23 @@ function getAns() {
     stack.push(...parts)
     input.value += "ANS";
 }
+
+let shiftEnabled = false;
+const shiftButton = document.getElementById("shift");
+function shiftToggle() {
+    shiftEnabled = !shiftEnabled;
+    document.documentElement.classList.toggle("shift-enabled", shiftEnabled);
+}
+
+shiftButton.onclick = e => shiftToggle()
+document.querySelectorAll(".shiftOff").forEach(btn => {
+    btn.classList.toggle("hidden", shiftEnabled);
+});
+
+
+
+
+
 
 // settings
 let angleMeasure = "degrees"

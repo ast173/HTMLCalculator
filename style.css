@@ -48,7 +48,6 @@ button:hover {
 }
 
 button:active {
-    color: white;
     background-color: rgb(80, 80, 80);
 }
 
@@ -149,4 +148,21 @@ button::before {
 
 .rowspan2 {
     grid-column: span 2;
+}
+
+/*TODO: fix button gradient animation desync*/
+.whenShiftOn {
+    display: none;
+}
+
+.shift-enabled #shift {
+    background-color: rgb(80, 80, 80);
+}
+
+.shift-enabled .whenShiftOff {
+    display: none;
+}
+
+.shift-enabled .whenShiftOn {
+    display: inline-block;
 }
