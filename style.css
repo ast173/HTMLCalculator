@@ -1,14 +1,28 @@
 :root {
     --font: "Segoe UI", Tahoma, Geneva, Verdana, serif;
     --calculator-gradient: linear-gradient(135deg, #BBD2C5, #536976, #292E49);
-    /*background: linear-gradient(135deg, #BBD2C5, #536976, #292E49);*/
-    /*background: linear-gradient(#acb6e5, #86fde8);*/
-    /*background: linear-gradient(#AABFBF, #798844);*/
-    /*--button-gradient: conic-gradient(from var(--angle), blue, purple, purple, blue);*/
+    --body-color: rgb(16, 16, 16);
+    --button-color: white;
+    --button-background-color: black;
+    --button-hover-color: rgb(48, 48, 48);
+    --button-active-color: rgb(80, 80, 80);
+}
+
+/*calculator gradients*/
+.water {
+    --calculator-gradient: linear-gradient(135deg, #BBD2C5, #536976, #292E49);
+}
+
+.cotton-candy {
+    --calculator-gradient: linear-gradient(135deg, #acb6e5, #86fde8);
+}
+
+.green-tea {
+    --calculator-gradient: linear-gradient(135deg, #AABFBF, #798844);
 }
 
 body {
-    background-color: rgb(16, 16, 16);
+    background-color: var(--body-color);
     display: flex;
 
     min-height: 100vh;
@@ -31,8 +45,8 @@ button {
     height: 28px;
     border-radius:5px;
 
-    color: white;
-    background: black;
+    color: var(--button-color);
+    background: var(--button-background-color);
 
     cursor: pointer;
     position: relative;
@@ -44,11 +58,11 @@ button {
 }
 
 button:hover {
-    background-color: rgb(48, 48, 48);
+    background-color: var(--button-hover-color);
 }
 
 button:active {
-    background-color: rgb(80, 80, 80);
+    background-color: var(--button-active-color);
 }
 
 button::before, button::after {
@@ -96,7 +110,7 @@ button::before {
     position: relative;
 }
 
-.calculator-border::before {
+.calc-grad-state-true.calculator-border::before {
     content: "";
     position: absolute;
 
@@ -156,7 +170,7 @@ button::before {
 }
 
 .shift-enabled #shift {
-    background-color: rgb(80, 80, 80);
+    background-color: var(--button-active-color);
 }
 
 .shift-enabled .whenShiftOff {

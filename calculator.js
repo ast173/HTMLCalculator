@@ -505,3 +505,26 @@ function resetSettings() {
     calculatorGradientEnabled = true
     calculatorGradient = "water"
 }
+
+document.addEventListener("DOMContentLoaded", () => {
+    const calcGradient = localStorage.getItem("calculator-gradient");
+    const border = document.querySelector(".calculator-border");
+
+    if (!border || !calcGradient) return;
+
+    border.classList.remove(...["water", "cotton-candy", "green-tea"]);
+    border.classList.add(calcGradient);
+});
+
+document.addEventListener("DOMContentLoaded", () => {
+    const calcGradState = localStorage.getItem("calc-grad-state");
+    const border = document.querySelector(".calculator-border");
+
+    if (!border) return;
+
+    if (calcGradState === "true") {
+        border.classList.add("calc-grad-state-true");
+    } else {
+        border.classList.remove("calc-grad-state-true");
+    }
+});
