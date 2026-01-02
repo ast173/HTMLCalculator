@@ -59,7 +59,7 @@ function tryEvaluate(expression) {
             }
             operators.push(c);
         } else if (c === "(") {
-            if (i !== 0 && !isOperator(expression.at(i - 1))) {
+            if (i !== 0 && !isOperator(expression.at(i - 1)) && expression.at(i - 1) !== ")") {
                 operators.push('*');
             }
             operators.push(c);
@@ -78,6 +78,9 @@ function tryEvaluate(expression) {
             values.push(Math.PI)
         } else if (c === "e") {
             values.push(Math.E)
+        } else if (c === "phi") {
+            const GOLDEN_RATIO = (1 + Math.sqrt(5)) / 2
+            values.push(GOLDEN_RATIO)
         }
 
         // functions that apply to items already on the stack
@@ -162,9 +165,15 @@ function isOperator(c) {
 }
 
 // isFunction: String -> Boolean
+const validFunctions = ["sqr", "sqrt", "cube", "cbrt", "rec", "sin", "cos", "tan", "ln", "lg", "abs"]
 function isFunction(c) {
-    let validFunctions = ["sqr", "sqrt", "cube", "cbrt", "rec", "sin", "cos", "tan", "ln", "lg", "abs"]
     return validFunctions.includes(c)
+}
+
+// isConstant: String -> Boolean
+const validConstants = ["pi", "e", "phi"]
+function isConstant(c) {
+    return validConstants.includes(c)
 }
 
 // validExpression: Array[Number...] Array[String...] -> Boolean
@@ -300,8 +309,8 @@ console.log(evaluate("-0.1E2".split(""))) // -10
 // bracket multiplication
 console.log(evaluate("2(3)".split(""))) // 6
 console.log(evaluate("(4)9".split(""))) // 36
-console.log(evaluate("-(5)(3)".split(""))) // 15 TODO error
-console.log(evaluate("-(5)(3)+5".split(""))) // 20 TODO error
+console.log(evaluate("-(5)(3)".split(""))) // -15
+console.log(evaluate("-(5)(3)+5".split(""))) // -10
 // sqr, cube, sqrt, cbrt, and trig functions
 console.log(evaluate(["sqr", "(", "-", "4", ")"])) // 16
 console.log(evaluate(["sqrt", "(", "9", ")"])) // 3
@@ -332,32 +341,120 @@ console.log(evaluate(["rec", "(", "2", "0", ")"])) // 0.05
 
 
 
+// TODO: DEL doesn't work for functions visually
+// TODO: make it so 9pi is 9 * pi
+// keyboard inputs
+let path = [];
+const LEAF = ["end", true]
+let funcMap = new Map([
+    ["e", new Map([LEAF])],
+    ["p", new Map([
+        ["i", new Map([LEAF])],
+        ["h", new Map([
+            ["i", new Map([LEAF])]
+        ])],
+    ])],
+    ["r", new Map([
+        ["e", new Map([
+            ["c", new Map([LEAF])]
+        ])]
+    ])],
+    ["t", new Map([
+        ["a", new Map([
+            ["n", new Map([LEAF])]
+        ])]
+    ])],
+    ["a", new Map([
+        ["b", new Map([
+            ["s", new Map([LEAF])]
+        ])]
+    ])],
+    ["l", new Map([
+        ["o", new Map([
+            ["g", new Map([LEAF])]
+        ])],
+        ["g", new Map([LEAF])],
+        ["n", new Map([LEAF])],
+    ])],
+    ["c", new Map([
+        ["u", new Map([
+            ["b", new Map([
+                ["e", new Map([LEAF])]
+            ])]
+        ])],
+        ["b", new Map([
+            ["r", new Map([
+                ["t", new Map([LEAF])]
+            ])]
+        ])],
+        ["o", new Map([
+            ["s", new Map([LEAF])]
+        ])],
+    ])],
+    ["s", new Map([
+        ["q", new Map([
+            ["r", new Map([
+                LEAF,
+                ["t", new Map([LEAF])],
+            ])]
+        ])],
+        ["i", new Map([
+            ["n", new Map([LEAF])]
+        ])],
+    ])],
+]);
 
-// TODO: add sqrt, cbrt, pi, log, trig functions, and absolute value |-3|
-// TODO: make a setting to disable the action where enter on a button presses the button
-// Keyboard inputs
 document.addEventListener("keydown", e => {
-    if (/^[0-9.+\-*/^()]$/.test(e.key)) {
-        addToInput(e.key)
-    } else if (e.key === "Enter" || e.key === "=") {
-        evaluateHTML()
-    } else if (e.key === "Backspace" || e.key === "Delete") {
-        deleteInput()
-    } else if (e.key === "Escape") {
-        clearInput()
-    } else if (e.key === "e") {
-        addConstToInput("e")
-    } else if (e.key === "E") {
-        addToInput("E")
-    } else if (e.key === "x" || e.key === "X") {
-        addToInput("*")
-    } else if (e.key === "|") {
-        addFuncToInput("abs")
-    } else if (e.key === "Shift") {
-        shiftToggle()
-    }
-});
+    let key = e.key;
 
+    path.push(key.toLowerCase())
+    let node = pathReachEnd(funcMap, [...path])
+
+    if (node instanceof Map && node.has("end")) {
+        let c = path.join("");
+        if (validFunctions.includes(c)) {
+            addFuncToInput(c);
+        } else {
+            addConstToInput(c);
+        }
+        path.length = 0;
+    } else if (node === false) {
+        path.length = 0;
+        if (funcMap.has(key)) {
+            path.push(key);
+        }
+    }
+
+    function pathReachEnd(map, path) {
+        if (path.length === 0) return map;
+        if (!map.has(path[0])) return false
+        return pathReachEnd(map.get(path[0]), path.slice(1));
+    }
+
+    if (/^[0-9.+\-*/^()]$/.test(key)) {
+        addToInput(key)
+    } else if (key === "Enter" || key === "=") {
+        e.preventDefault();
+        evaluateHTML()
+    } else if (key === "Backspace" || key === "Delete") {
+        deleteInput()
+    } else if (key === "Escape") {
+        clearInput()
+    } else if (key === "E") {
+        addToInput("E")
+    } else if (key === "x" || key === "X") {
+        addToInput("*")
+    } else if (key === "|") {
+        addFuncToInput("abs")
+    } else if (key === "!") {
+        addToInput("!")
+    } else if (key === "%") {
+        addToInput("%")
+    }
+    // else if (key === "Shift") {
+    //     shiftToggle()
+    // }
+});
 
 
 
@@ -401,6 +498,10 @@ function addConstToInput(value) {
         case "e":
             stack.push("e")
             input.value += "e";
+            break
+        case "phi":
+            stack.push("phi")
+            input.value += "Φ";
             break
     }
 }
@@ -479,10 +580,13 @@ function shiftToggle() {
     document.documentElement.classList.toggle("shift-enabled", shiftEnabled);
 }
 
-shiftButton.onclick = e => shiftToggle()
+shiftButton.onclick = () => shiftToggle()
 document.querySelectorAll(".shiftOff").forEach(btn => {
     btn.classList.toggle("hidden", shiftEnabled);
 });
+
+
+
 
 
 
@@ -506,6 +610,7 @@ function resetSettings() {
     calculatorGradient = "water"
 }
 
+// calculator gradient change
 document.addEventListener("DOMContentLoaded", () => {
     const calcGradient = localStorage.getItem("calculator-gradient");
     const border = document.querySelector(".calculator-border");
@@ -516,6 +621,7 @@ document.addEventListener("DOMContentLoaded", () => {
     border.classList.add(calcGradient);
 });
 
+// calculator gradient glow
 document.addEventListener("DOMContentLoaded", () => {
     const calcGradState = localStorage.getItem("calc-grad-state");
     const border = document.querySelector(".calculator-border");
@@ -528,3 +634,14 @@ document.addEventListener("DOMContentLoaded", () => {
         border.classList.remove("calc-grad-state-true");
     }
 });
+
+// // light mode
+// document.addEventListener("DOMContentLoaded", () => {
+//     const modeState = localStorage.getItem("mode-state");
+//
+//     if (modeState === "true") {
+//         document.body.classList.add("light-mode");
+//     } else {
+//         document.body.classList.remove("light-mode");
+//     }
+// });

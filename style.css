@@ -1,11 +1,21 @@
 :root {
     --font: "Segoe UI", Tahoma, Geneva, Verdana, serif;
     --calculator-gradient: linear-gradient(135deg, #BBD2C5, #536976, #292E49);
+    --calculator-background-color: rgb(32, 32, 32);
     --body-color: rgb(16, 16, 16);
     --button-color: white;
     --button-background-color: black;
     --button-hover-color: rgb(48, 48, 48);
     --button-active-color: rgb(80, 80, 80);
+}
+
+.light-mode {
+    --calculator-background-color: rgb(224, 224, 224);
+    --body-color: rgb(240, 240, 240);
+    --button-color: black;
+    --button-background-color: white;
+    --button-hover-color: rgb(208, 208, 208);
+    --button-active-color: rgb(176, 176, 176);
 }
 
 /*calculator gradients*/
@@ -124,7 +134,7 @@ button::before {
 }
 
 .calculator {
-    background: rgb(32, 32, 32);
+    background: var(--calculator-background-color);
 
     width: 280px;
     border-radius: 15px;
