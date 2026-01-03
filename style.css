@@ -170,7 +170,7 @@ button::before {
     margin-bottom: 12px;
 }
 
-.rowspan2 {
+.rowspan-2 {
     grid-column: span 2;
 }
 
