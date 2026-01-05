@@ -2,7 +2,7 @@
 function evaluate(expression) {
     try {
         let res = tryEvaluate(expression);
-        return Math.round(res * 1e15) / 1e15;
+        return Math.round(res * 1e12) / 1e12;
     } catch (e) {
         return e.message;
     }
@@ -60,10 +60,10 @@ function tryEvaluate(expression) {
             operators.push(c);
         } else if (c === "(") {
             if (i !== 0 && !isOperator(expression.at(i - 1)) && expression.at(i - 1) !== ")") {
-                operators.push('*');
+                operators.push("*");
             }
             if (isConstant(expression.at(i - 1))) {
-                operators.push('*');
+                operators.push("*");
             }
             operators.push(c);
         } else if (c === ")") {
@@ -72,17 +72,17 @@ function tryEvaluate(expression) {
             }
             operators.pop();
             if (i < expression.length - 1 && !isOperator(expression.at(i + 1))) {
-                operators.push('*');
+                operators.push("*");
             }
             if (isConstant(expression.at(i + 1))) {
-                operators.push('*');
+                operators.push("*");
             }
         }
 
         // constants
         else if (isConstant(c)) {
             if (i !== 0 && !isOperator(expression.at(i - 1)) && !["(", ")"].includes(expression.at(i - 1))) {
-                operators.push('*');
+                operators.push("*");
             }
 
             if (c === "pi") {
@@ -97,7 +97,7 @@ function tryEvaluate(expression) {
             }
 
             if (i < expression.length - 1 && !isOperator(expression.at(i + 1)) && !["(", ")"].includes(expression.at(i - 1))) {
-                operators.push('*');
+                operators.push("*");
             }
         }
 
@@ -118,10 +118,24 @@ function tryEvaluate(expression) {
             }
 
             values.push(newVal);
+        } else if (c === "sqr") {
+            operators.push("^");
+            values.push(2);
+        } else if (c === "cube") {
+            operators.push("^");
+            values.push(3);
+        } else if (c === "rec") {
+            if (values.at(-1) === 0) throw new Error("Error 6: Reciprocal of 0 is undefined");
+            operators.push("^");
+            values.push(-1);
         }
 
         // functions
         else if (isFunction(c)) {
+            if (i !== 0 && !isOperator(expression.at(i - 1))) {
+                operators.push("*");
+            }
+            
             let depth = 1;
             // skip the opening bracket
             let j = i + 2;
@@ -187,7 +201,7 @@ function isOperator(c) {
 }
 
 // isFunction: String -> Boolean
-const validFunctions = ["sqr", "sqrt", "cube", "cbrt", "rec", "sin", "cos", "tan", "ln", "lg", "abs"];
+const validFunctions = ["sqrt", "cbrt", "sin", "cos", "tan", "asin", "acos", "atan", "ln", "lg", "abs"];
 function isFunction(c) {
     return validFunctions.includes(c);
 }
@@ -255,35 +269,31 @@ function applyOp(op, left, right) {
 // applyFunction: String Number -> Number
 function applyFunction(func, n) {
     switch (func) {
-        case "sqr":
-            return n * n;
         case "sqrt":
-            return Math.sqrt(n);
-        case "cube":
-            return n * n * n;
+            if (n < 0) throw new Error("Error 9: " + n + " is outside of the domain for sqrt");
+            return Math.sqrt(n)
         case "cbrt":
             return Math.cbrt(n);
-        case "rec":
-            if (n === 0) throw new Error("Error 6: Reciprocal of 0 is undefined");
-            return Math.pow(n, -1);
         case "sin":
             return Math.sin(n * Math.PI / 180);
         case "cos":
             return Math.cos(n * Math.PI / 180);
         case "tan":
-            if (Math.abs(Math.cos(n * Math.PI / 180)) < 6.125e-17) throw new Error("Error 5: tan(" + n + ") is undefined");
+            if (Math.abs(Math.cos(n * Math.PI / 180)) < 1e-12) throw new Error("Error 5: 'tan(" + n + ")' is undefined");
             return Math.tan(n * Math.PI / 180);
         case "asin":
+            if (n < -1 || 1 < n) throw new Error("Error 10: '" + n + "' is outside of the domain for asin");
             return Math.asin(n) * 180 / Math.PI;
         case "acos":
+            if (n < -1 || 1 < n) throw new Error("Error 10: '" + n + "' is outside of the domain for acos");
             return Math.acos(n) * 180 / Math.PI;
         case "atan":
             return Math.atan(n) * 180 / Math.PI;
         case "ln":
-            if (n <= 0) throw new Error(n + " is outside of the domain for ln");
+            if (n <= 0) throw new Error("Error 9: '" + n + "' is outside of the domain for ln");
             return Math.log(n);
         case "lg":
-            if (n <= 0) throw new Error(n + " is outside of the domain for log10");
+            if (n <= 0) throw new Error("Error 9: '" + n + "' is outside of the domain for log10");
             return Math.log10(n);
         case "abs":
             return Math.abs(n);
@@ -374,11 +384,6 @@ let funcMap = new Map([
             ["i", new Map([END])]
         ])],
     ])],
-    ["r", new Map([
-        ["e", new Map([
-            ["c", new Map([END])]
-        ])]
-    ])],
     ["t", new Map([
         ["a", new Map([
             ["n", new Map([END])]
@@ -390,6 +395,21 @@ let funcMap = new Map([
         ])],
         ["n", new Map([
             ["s", new Map([END])]
+        ])],
+        ["s", new Map([
+            ["i", new Map([
+                ["n", new Map([END])]
+            ])]
+        ])],
+        ["c", new Map([
+            ["o", new Map([
+                ["s", new Map([END])]
+            ])]
+        ])],
+        ["t", new Map([
+            ["a", new Map([
+                ["n", new Map([END])]
+            ])]
         ])],
     ])],
     ["l", new Map([
@@ -485,7 +505,8 @@ document.addEventListener("keydown", e => {
 
 
 
-
+// TODO: make it so sin(60)=sqrt(3)/2 exactly
+// TODO: also add pi/3 and fractions
 // index.html
 const input = document.getElementById("input");
 const output = document.getElementById("output");
@@ -494,23 +515,33 @@ let ans = 0;
 
 function evaluateHTML() {
     output.value = evaluate(stack);
-    ans = parseInt(output.value);
+    ans = parseFloat(output.value);
 }
 
-function addToInput(value) {
+function addToInput(c) {
     output.value = "";
-    if (value === "E") {
-        stack.push(value);
-        input.value += "x10^";
-    } else {
-        stack.push(value);
-        input.value += value;
+    stack.push(c);
+    switch (c) {
+        case "E":
+            input.value += "x10^";
+            break;
+        case "sqr":
+            input.value += "²"
+            break;
+        case "cube":
+            input.value += "³"
+            break;
+        case "rec":
+            input.value += "⁻¹"
+            break;
+        default:
+            input.value += c;
     }
 }
 
-function addConstToInput(value) {
+function addConstToInput(c) {
     output.value = "";
-    switch (value) {
+    switch (c) {
         case "pi":
             stack.push("pi")
             input.value += "π";
@@ -529,39 +560,27 @@ function addConstToInput(value) {
     }
 }
 
-function addFuncToInput(value) {
+function addFuncToInput(c) {
     output.value = "";
-    stack.push(value)
+    stack.push(c)
     stack.push("(")
 
-    switch (value) {
-        case "sqr":
-            // input.value += "[_]²"
-            input.value += "sqr"
-            break
+    switch (c) {
         case "sqrt":
             input.value += "√"
-            break
-        case "cube":
-            // input.value += "[_]³"
-            input.value += "cube"
             break
         case "cbrt":
             input.value += "³√"
             break
-        case "rec":
-            // input.value += "[_]⁻¹"
-            input.value += "rec"
-            break
         case "sin":
         case "cos":
         case "tan":
-            input.value += value;
+            input.value += c;
             break
         case "asin":
         case "acos":
         case "atan":
-            input.value += value + "⁻¹";
+            input.value += c.slice(1) + "⁻¹";
             break
         case "ln":
             input.value += "ln"
@@ -627,20 +646,15 @@ document.querySelectorAll(".shiftOff").forEach(btn => {
 
 
 // settings
-let angleMeasure = "degrees"
-let mode = "dark"
-let buttonGradientEnabled = true
-let buttonGradient = 0
-let calculatorGradientEnabled = true
-let calculatorGradient = "water"
-
 function resetSettings() {
-    angleMeasure = "degrees"
-    mode = "dark"
-    buttonGradientEnabled = true
-    buttonGradient = 0
-    calculatorGradientEnabled = true
-    calculatorGradient = "water"
+    // const border = document.querySelector(".calculator-border");
+    // border.classList.remove(...["water", "cotton-candy", "green-tea"]);
+    // border.classList.add("water");
+    //
+    // border.classList.add("calc-grad-state-true");
+    //
+    // const root = document.documentElement;
+    // root.classList.remove("light-mode");
 }
 
 // calculator gradient change
@@ -668,13 +682,16 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 });
 
-// // light mode
-// document.addEventListener("DOMContentLoaded", () => {
-//     const modeState = localStorage.getItem("mode-state");
-//
-//     if (modeState === "true") {
-//         document.body.classList.add("light-mode");
-//     } else {
-//         document.body.classList.remove("light-mode");
-//     }
-// });
+// light mode
+document.addEventListener("DOMContentLoaded", () => {
+    const modeState = localStorage.getItem("light-mode-state");
+    const root = document.documentElement;
+
+    if (!root) return;
+
+    if (modeState === "true") {
+        root.classList.add("light-mode");
+    } else {
+        root.classList.remove("light-mode");
+    }
+});

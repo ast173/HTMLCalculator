@@ -6,26 +6,24 @@ if (calcGradient) {
     calculatorDrop.value = calcGradient;
 }
 
-calculatorDrop.addEventListener("change", e => {
-    localStorage.setItem("calculator-gradient", e.target.value);
+calculatorDrop.addEventListener("change", () => {
+    localStorage.setItem("calculator-gradient", calculatorDrop.value);
 });
 
 // calculator gradient glow
 const calcGradOn = document.getElementById("calc-grad-on");
-let calcGradState = localStorage.getItem("calc-grad-state");
 
-calcGradOn.checked = calcGradState === "true";
+calcGradOn.checked = localStorage.getItem("calc-grad-state") === "true";
 
-calcGradOn.addEventListener("change", e => {
-    localStorage.setItem("calc-grad-state", e.target.checked.toString());
+calcGradOn.addEventListener("change", () => {
+    localStorage.setItem("calc-grad-state", calcGradOn.checked.toString());
 });
 
-// // light mode
-// const mode = document.getElementById("mode-checkbox");
-// let modeState = localStorage.getItem("mode-state");
-//
-// mode.checked = modeState === "true";
-//
-// mode.addEventListener("change", e => {
-//     localStorage.setItem("mode-state", e.target.checked.toString());
-// });
+// light mode
+const lightModeOn = document.getElementById("light-mode-on");
+
+lightModeOn.checked = localStorage.getItem("light-mode-state") === "true";
+
+lightModeOn.addEventListener("change", () => {
+    localStorage.setItem("light-mode-state", lightModeOn.checked.toString());
+});
