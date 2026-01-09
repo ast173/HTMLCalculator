@@ -7,6 +7,7 @@
         <meta http-equiv="X-UA-Compatible" content="ie=edge">
         <title>Settings</title>
 
+        <link rel="stylesheet" href="style2.css">
         <script type="text/javascript" src="settings.js" defer></script>
     </head>
 
@@ -15,25 +16,22 @@
         <hr>
 
         <div class="settings">
-            Degrees | Radians
-            <br>
-            <label for="light-mode-on">Light mode?</label>
-            <input type="checkbox" id="light-mode-on">
-            <br>
+            <input type="checkbox" id="angle-measure" class="toggle">
+            <label for="angle-measure">Degrees | Radians</label>
 
-            <label for="btn-grad-on">Button Gradient?</label>
-            <input type="checkbox" id="btn-grad-on" checked>
-            <br>
+            <input type="checkbox" id="light-mode-on" class="toggle">
+            <label for="light-mode-on">Light mode?</label>
+
+            <input type="checkbox" id="hide-calc-bg" class="toggle">
+            <label for="hide-calc-bg">Hide Calculator Background?</label>
 
             <label for="btn-grad-drop">Button Gradient:</label>
             <select id="btn-grad-drop">
                 <option value="blue purple">Blue/Purple</option>
             </select>
-            <br>
 
-            <label for="calc-grad-on">Calculator Gradient Glow?</label>
-            <input type="checkbox" id="calc-grad-on" checked>
-            <br>
+            <input type="checkbox" id="btn-grad-on" class="toggle" checked>
+            <label for="btn-grad-on">Button Gradient Glow?</label>
 
             <label for="calc-grad-drop">Calculator Gradient:</label>
             <select id="calc-grad-drop">
@@ -41,14 +39,14 @@
                 <option value="cotton-candy">Cotton Candy</option>
                 <option value="green-tea">Green Tea</option>
             </select>
-            <br>
 
-            <button id="reset" onclick="resetSettings()">Reset Changes</button>
-            <br>
+            <input type="checkbox" id="calc-grad-on" class="toggle" checked>
+            <label for="calc-grad-on">Calculator Gradient Glow?</label>
+
+            <button id="reset">Reset Changes</button>
             <button id="back" onclick="location.href='index.html'">Back</button>
-            <br>
         </div>
 
-        <script src="calculator.js"></script>
+        <script src="index.js"></script>
     </body>
 </html>

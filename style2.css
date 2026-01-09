@@ -1,0 +1,53 @@
+body {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+div.settings {
+    display: flex;
+    flex-direction: column;
+}
+
+input[type="checkbox"].toggle {
+    opacity: 0;
+    position: absolute;
+    cursor: pointer;
+    height: 0;
+    width: 0;
+}
+
+input[type="checkbox"].toggle + label {
+    display: flex;
+    position: relative;
+    align-items: center;
+    cursor: pointer;
+}
+
+input[type="checkbox"].toggle + label::before {
+    content: "";
+    width: 2em;
+    height: 1em;
+
+    background-color: #ddd;
+    border-radius: 1em;
+    margin-right: 0.25em;
+}
+
+input[type="checkbox"].toggle + label::after {
+    content: "";
+    position: absolute;
+    left: 0.1em;
+    width: 0.9em;
+    height: 0.9em;
+
+    background-color: red;
+    border-radius: 1em;
+    margin-right: 0.25em;
+    transition: 200ms ease-in-out;
+}
+
+input[type="checkbox"].toggle:checked + label::after {
+    transform: translateX(100%);
+    background-color: green;
+}

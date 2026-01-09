@@ -23,34 +23,35 @@ function tryEvaluate(expression) {
         values.push(reducedValue);
     }
 
-    // if (expression.length === 0) throw Error("Error 4: Empty expression")
     if (expression.length === 0) throw Error("");
 
     for (let i = 0; i < expression.length; i++) {
-        let c = expression.at(i);
+        let c = expression[i];
+        // let next = expression[i + 1]; // TODO: use these?
+        // let before = expression[i + 1];
 
         if (c === " ") continue;
 
         if (isDigit(c) || c === ".") {
-            let v = c;
+            let value = c;
             let hasDot = c === ".";
 
-            while (i + 1 < expression.length && (isDigit(expression.at(i + 1)) || expression.at(i + 1) === ".")) {
-                let newC = expression.at(i + 1);
+            while (i + 1 < expression.length && (isDigit(expression[i + 1]) || expression[i + 1] === ".")) {
+                let newC = expression[i + 1];
 
                 if (newC === ".") {
                     if (hasDot) throw Error("Error 2: Multiple decimal places");
                     else hasDot = true;
                 }
 
-                v += newC;
+                value += newC;
                 i++;
             }
 
-            if (v === ".") throw Error("Error 3: Lone decimal point is not a number");
+            if (value === ".") value = 0;
 
-            values.push(parseFloat(v));
-        } else if (c === "-" && (i === 0 || isOperator(expression.at(i - 1)) || expression.at(i - 1) === "(")) {
+            values.push(parseFloat(value));
+        } else if (c === "-" && (i === 0 || isOperator(expression[i - 1]) || expression[i - 1] === "(")) {
             values.push(0);
             operators.push("-");
         } else if (isOperator(c)) {
@@ -59,10 +60,10 @@ function tryEvaluate(expression) {
             }
             operators.push(c);
         } else if (c === "(") {
-            if (i !== 0 && !isOperator(expression.at(i - 1)) && expression.at(i - 1) !== ")") {
+            if (i !== 0 && !isOperator(expression[i - 1]) && expression[i - 1] !== ")") {
                 operators.push("*");
             }
-            if (isConstant(expression.at(i - 1))) {
+            if (isConstant(expression[i - 1])) {
                 operators.push("*");
             }
             operators.push(c);
@@ -71,17 +72,17 @@ function tryEvaluate(expression) {
                 reduceExpression();
             }
             operators.pop();
-            if (i < expression.length - 1 && !isOperator(expression.at(i + 1))) {
+            if (i < expression.length - 1 && !isOperator(expression[i + 1])) {
                 operators.push("*");
             }
-            if (isConstant(expression.at(i + 1))) {
+            if (isConstant(expression[i + 1])) {
                 operators.push("*");
             }
         }
 
         // constants
         else if (isConstant(c)) {
-            if (i !== 0 && !isOperator(expression.at(i - 1)) && !["(", ")"].includes(expression.at(i - 1))) {
+            if (i !== 0 && !isOperator(expression[i - 1]) && !["(", ")"].includes(expression[i - 1])) {
                 operators.push("*");
             }
 
@@ -96,7 +97,7 @@ function tryEvaluate(expression) {
                 values.push(ans);
             }
 
-            if (i < expression.length - 1 && !isOperator(expression.at(i + 1)) && !["(", ")"].includes(expression.at(i - 1))) {
+            if (i < expression.length - 1 && !isOperator(expression[i + 1]) && !["(", ")"].includes(expression[i - 1])) {
                 operators.push("*");
             }
         }
@@ -128,11 +129,17 @@ function tryEvaluate(expression) {
             if (values.at(-1) === 0) throw new Error("Error 6: Reciprocal of 0 is undefined");
             operators.push("^");
             values.push(-1);
+        } else if (c === "exp") {
+            values.push(Math.E);
+            operators.push("^");
+        } else if (c === "expt10") {
+            values.push(10);
+            operators.push("^");
         }
 
         // functions
         else if (isFunction(c)) {
-            if (i !== 0 && !isOperator(expression.at(i - 1))) {
+            if (i !== 0 && !isOperator(expression[i - 1])) {
                 operators.push("*");
             }
             
@@ -142,7 +149,7 @@ function tryEvaluate(expression) {
 
             // index until ending bracket is reached or the end of the expression is reached
             while (j < expression.length) {
-                let d = expression.at(j);
+                let d = expression[j];
 
                 if (d === "(") {
                     depth++;
@@ -330,7 +337,7 @@ console.log(evaluate("0!".split(""))); // 1
 console.log(evaluate("1!".split(""))); // 1
 console.log(evaluate("5!".split(""))); // 120
 console.log(evaluate("5!^3".split(""))); // 1728000
-console.log(evaluate("2^4!".split(""))); // TODO: which one takes priority?
+console.log(evaluate("2^4!".split(""))); // 16777216
 // x10^
 console.log(evaluate("2E5".split(""))); // 200000
 console.log(evaluate("8E-3".split(""))); // 0.008
@@ -507,6 +514,7 @@ document.addEventListener("keydown", e => {
 
 // TODO: make it so sin(60)=sqrt(3)/2 exactly
 // TODO: also add pi/3 and fractions
+// TODO: add variables (A, B, C, ... Z)
 // index.html
 const input = document.getElementById("input");
 const output = document.getElementById("output");
@@ -522,8 +530,11 @@ function addToInput(c) {
     output.value = "";
     stack.push(c);
     switch (c) {
+        case "*":
+            input.value += "×";
+            break;
         case "E":
-            input.value += "x10^";
+            input.value += "×10^";
             break;
         case "sqr":
             input.value += "²"
@@ -534,6 +545,12 @@ function addToInput(c) {
         case "rec":
             input.value += "⁻¹"
             break;
+        case "exp":
+            input.value += "e^"
+            break;
+        case "expt10":
+            input.value += "10^"
+            break;
         default:
             input.value += c;
     }
@@ -543,54 +560,76 @@ function addConstToInput(c) {
     output.value = "";
     switch (c) {
         case "pi":
-            stack.push("pi")
+            stack.push("pi");
             input.value += "π";
-            break
+            break;
         case "e":
-            stack.push("e")
+            stack.push("e");
             input.value += "e";
-            break
+            break;
         case "phi":
-            stack.push("phi")
+            stack.push("phi");
             input.value += "Φ";
-            break
+            break;
         case "ans":
-            stack.push("ans")
+            stack.push("ans");
             input.value += "ANS";
+    }
+
+    if (/^var[A-Z]$/.test(c)) {
+        stack.push(c);
+        input.value += c[3];
     }
 }
 
 function addFuncToInput(c) {
     output.value = "";
-    stack.push(c)
-    stack.push("(")
+    stack.push(c);
+    stack.push("(");
 
     switch (c) {
         case "sqrt":
             input.value += "√"
-            break
+            break;
         case "cbrt":
             input.value += "³√"
-            break
+            break;
         case "sin":
         case "cos":
         case "tan":
             input.value += c;
-            break
+            break;
         case "asin":
         case "acos":
         case "atan":
             input.value += c.slice(1) + "⁻¹";
-            break
+            break;
         case "ln":
             input.value += "ln"
-            break
+            break;
         case "lg":
             input.value += "log"
-            break
+            break;
         case "abs":
             input.value += "abs"
-            break
+            break;
+    }
+
+    input.value += "(";
+}
+
+function addFunc2ToInput(c) {
+    output.value = "";
+    stack.push(c)
+    stack.push("(")
+
+    switch (c) {
+        case "root":
+            input.value += "root"
+            break;
+        case "log":
+            input.value += "log"
+            break;
     }
 
     input.value += "(";
@@ -605,17 +644,35 @@ function clearInput() {
 function deleteInput() {
     output.value = "";
     let c = stack.pop();
-    input.value = input.value.slice(0, -c.length);
+    let visualLength;
+    if (c === "sqr" || c === "cube" || c === "pi" || c === "phi") {
+        visualLength = 1;
+    } else if (c === "exp") {
+        visualLength = 2;
+    } else if (c === "expt10") {
+        visualLength = 3;
+    } else if (c === "E") {
+        visualLength = 4;
+    } else {
+        visualLength = c.length;
+    }
+    input.value = input.value.slice(0, -visualLength);
 
-    if (isFunction(stack.at(-1))) {
-        let c2 = stack.pop();
-        if (c2 === "sqrt") {
-            input.value = input.value.slice(0, -1);
-        } else if (c2 === "cbrt") {
-            input.value = input.value.slice(0, -2);
+    if (c === "(" && isFunction(stack.at(-1))) {
+        let f = stack.pop();
+        let visualFuncLength;
+        if (f === "sqrt") {
+            visualFuncLength = 1;
+        } else if (f === "cbrt") {
+            visualFuncLength = 2;
+        } else if (f === "lg") {
+            visualFuncLength = 3;
+        } else if (f === "asin" || f === "acos" || f === "atan") {
+            visualFuncLength = 5;
         } else {
-            input.value = input.value.slice(0, -c2.length);
+            visualFuncLength = f.length;
         }
+        input.value = input.value.slice(0, -visualFuncLength);
     }
 }
 
@@ -646,17 +703,6 @@ document.querySelectorAll(".shiftOff").forEach(btn => {
 
 
 // settings
-function resetSettings() {
-    // const border = document.querySelector(".calculator-border");
-    // border.classList.remove(...["water", "cotton-candy", "green-tea"]);
-    // border.classList.add("water");
-    //
-    // border.classList.add("calc-grad-state-true");
-    //
-    // const root = document.documentElement;
-    // root.classList.remove("light-mode");
-}
-
 // calculator gradient change
 document.addEventListener("DOMContentLoaded", () => {
     const calcGradient = localStorage.getItem("calculator-gradient");

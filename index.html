@@ -8,7 +8,7 @@
         <title>Calculator</title>
 
         <link rel="stylesheet" href="style.css">
-        <script type="text/javascript" src="calculator.js" defer></script>
+        <script type="text/javascript" src="index.js" defer></script>
     </head>
 
     <body>
@@ -31,9 +31,11 @@
                 <div class="buttons2">
                     <button id="reciprocal" class="whenShiftOff" onclick="addToInput('rec')">x⁻¹</button>
                     <button id="abs" class="whenShiftOn" onclick="addFuncToInput('abs')">abs</button>
-                    <button id="ln" onclick="addFuncToInput('ln')">lnx</button>
-                    <button id="lg" onclick="addFuncToInput('lg')">log₁₀x</button>
-                    <button id="log" onclick="('log')">logᵧx</button>
+                    <button id="ln" class="whenShiftOff" onclick="addFuncToInput('ln')">lnx</button>
+                    <button id="exp" class="whenShiftOn" onclick="addToInput('exp')">eˣ</button>
+                    <button id="lg" class="whenShiftOff" onclick="addFuncToInput('lg')">log₁₀x</button>
+                    <button id="expt10" class="whenShiftOn" onclick="addToInput('expt10')">10ˣ</button>
+                    <button id="log" onclick="addFunc2ToInput('log')">logᵧx</button>
                     <button id="x10^" onclick="addToInput('E')">x10ˣ</button>
 
                     <button id="sin" class="whenShiftOff" onclick="addFuncToInput('sin')">sin</button>
@@ -49,7 +51,7 @@
                     <button id="cbr" onclick="addToInput('cube')">x³</button>
                     <button id="sqrt" onclick="addFuncToInput('sqrt')">√x</button>
                     <button id="cbrt" onclick="addFuncToInput('cbrt')">³√x</button>
-                    <button id="root" onclick="('root')">ʸ√x</button>
+                    <button id="root" onclick="addFunc2ToInput('root')">ʸ√x</button>
 
                     <button id="(" onclick="addToInput('(')">(</button>
                     <button id=")" onclick="addToInput(')')">)</button>
@@ -70,7 +72,7 @@
                     <button id="4" onclick="addToInput('4')">4</button>
                     <button id="5" onclick="addToInput('5')">5</button>
                     <button id="6" onclick="addToInput('6')">6</button>
-                    <button id="*" onclick="addToInput('*')">*</button>
+                    <button id="*" onclick="addToInput('*')">×</button>
                     <button id="/" onclick="addToInput('/')">/</button>
 
                     <button id="1" onclick="addToInput('1')">1</button>
