@@ -1,36 +1,28 @@
 :root {
     --font: "Segoe UI", Tahoma, Geneva, Verdana, serif;
     --calculator-gradient: linear-gradient(135deg, #BBD2C5, #536976, #292E49);
+    --button-gradient-color: #0f0f88;
+
     --body-color: rgb(16, 16, 16);
-    --calculator-background-color: rgb(32, 32, 32); /*option to toggle this off*/
+    --calculator-background-gradient: linear-gradient(135deg, #2c2c2c, #141414);
     --button-color: white;
     --button-background-color: black;
     --button-hover-color: rgb(48, 48, 48);
     --button-active-color: rgb(80, 80, 80);
+    --button-border-color: black;
 }
 
 :root.light-mode {
     --body-color: rgb(235, 238, 238);
-    --calculator-background-color: rgb(229, 229, 231);
+    --calculator-background-gradient: linear-gradient(135deg, #f1f1f3, #d9d9db);
     --button-color: black;
     --button-background-color: rgb(239, 239, 241);
     --button-hover-color: rgb(244, 244, 246);
     --button-active-color: rgb(253, 253, 255);
+    --button-border-color: white;
 }
 
-/*calculator gradients*/
-.water {
-    --calculator-gradient: linear-gradient(135deg, #BBD2C5, #536976, #292E49);
-}
-
-.cotton-candy {
-    --calculator-gradient: linear-gradient(135deg, #acb6e5, #86fde8);
-}
-
-.green-tea {
-    --calculator-gradient: linear-gradient(135deg, #AABFBF, #798844);
-}
-
+/*background*/
 body {
     background-color: var(--body-color);
     display: flex;
@@ -41,16 +33,77 @@ body {
     justify-content: center;
 }
 
-textarea {
+/*calculator border div (gradient)*/
+.calculator-border {
+    padding: 5px;
+    border-radius: 18px;
+    background-image: var(--calculator-gradient);
+    position: relative;
+}
+
+.calculator-border.show-calculator-glow::before {
+    content: "";
+    position: absolute;
+
+    inset: -8px;
+    border-radius: 22px;
+    z-index: -1;
+
+    background-image: var(--calculator-gradient);
+    filter: blur(15px);
+    opacity: 0.75;
+}
+
+/*calculator gradients*/
+.calculator-border.water {
+    --calculator-gradient: linear-gradient(135deg, #bbd2c5, #536976, #292e49);
+}
+
+.calculator-border.cotton-candy {
+    --calculator-gradient: linear-gradient(135deg, #acb6e5, #86fde8);
+}
+
+.calculator-border.green-tea {
+    --calculator-gradient: linear-gradient(135deg, #aabfbf, #798844);
+}
+
+.calculator-border.sago-taro {
+    --calculator-gradient: linear-gradient(135deg, #ffc0cb, #654ea3);
+}
+
+/*calculator div*/
+.calculator {
+    background-image: var(--calculator-background-gradient);
+
+    width: 280px;
+    border-radius: 15px;
+    padding: 20px;
+
+    z-index: 0;
+    position: relative;
+}
+
+.calculator.hide-calc {
+    background: transparent;
+}
+
+/*displays*/
+.displays {
+    display: grid;
+    margin-bottom: 24px;
+}
+
+.displays textarea {
     resize: none;
+    cursor: default;
     font-family: var(--font);
 }
 
-#output {
+.displays #output {
     text-align: end;
 }
 
-/*buttons (gradient animation, hover color change)*/
+/*buttons*/
 button {
     height: 28px;
     border-radius:5px;
@@ -75,6 +128,7 @@ button:active {
     background-color: var(--button-active-color);
 }
 
+/*button gradient animation*/
 button::before, button::after {
     content: "";
     position: absolute;
@@ -87,14 +141,17 @@ button::before, button::after {
     z-index: -1;
 
     border-radius:5px;
-    padding: 3px; /*controls thickness*/
-    background-image: conic-gradient(from var(--angle), blue, purple, purple, blue);
+    padding: 3px;
+    background-image: conic-gradient(from var(--angle),
+    var(--button-border-color),
+    var(--button-gradient-color),
+    var(--button-border-color));
     animation: 3s spin linear infinite;
 }
 
-button::before {
+button.show-button-glow::before {
     filter: blur(3px);
-    opacity: 0.5;
+    opacity: 0.75;
 }
 
 @property --angle {
@@ -112,58 +169,51 @@ button::before {
     }
 }
 
-/*divs*/
-.calculator-border {
-    padding: 5px;
-    border-radius: 18px;
-    background: var(--calculator-gradient);
-    position: relative;
+/*button gradients*/
+button.red {
+    --button-gradient-color: #702335;
 }
 
-.calc-grad-state-true.calculator-border::before {
-    content: "";
-    position: absolute;
-
-    inset: -8px;
-    border-radius: 22px;
-    z-index: -1;
-
-    background: var(--calculator-gradient);
-    filter: blur(15px);
-    opacity: 0.75;
+button.yellow {
+    --button-gradient-color: #8c821e;
 }
 
-.calculator {
-    background: var(--calculator-background-color);
-
-    width: 280px;
-    border-radius: 15px;
-    padding: 20px;
-
-    z-index: 0;
-    position: relative;
+button.green {
+    --button-gradient-color: #226316;
 }
 
-.displays {
-    display: grid;
-    margin-bottom: 24px;
+button.blue {
+    --button-gradient-color: #0f0f88;
 }
 
-.buttons1 {
+button.purple {
+    --button-gradient-color: #590a59;
+}
+
+button.black {
+    --button-gradient-color: black;
+}
+
+button.white {
+    --button-gradient-color: white;
+}
+
+/*button grouping*/
+.button-group-1 {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
     gap: 10px;
     margin-bottom: 24px;
 }
 
-.buttons2 {
+.button-group-2 {
     display: grid;
     grid-template-columns: repeat(5, 1fr);
     gap: 10px;
     margin-bottom: 24px;
 }
 
-.buttons3 {
+.button-group-3 {
     display: grid;
     grid-template-columns: repeat(5, 1fr);
     gap: 10px;
@@ -175,7 +225,7 @@ button::before {
 }
 
 /*TODO: fix button gradient animation desync*/
-.whenShiftOn {
+button.whenShiftOn {
     display: none;
 }
 

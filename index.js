@@ -207,16 +207,22 @@ function isOperator(c) {
     return /^[+\-*/^E]$/.test(c);
 }
 
+const VALID_FUNCTIONS = ["sqrt", "cbrt", "sin", "cos", "tan", "asin", "acos", "atan", "ln", "lg", "abs"];
 // isFunction: String -> Boolean
-const validFunctions = ["sqrt", "cbrt", "sin", "cos", "tan", "asin", "acos", "atan", "ln", "lg", "abs"];
 function isFunction(c) {
-    return validFunctions.includes(c);
+    return VALID_FUNCTIONS.includes(c);
 }
 
+const VALID_CONSTANTS = ["pi", "e", "phi", "ans"];
 // isConstant: String -> Boolean
-const validConstants = ["pi", "e", "phi", "ans"];
 function isConstant(c) {
-    return validConstants.includes(c);
+    return VALID_CONSTANTS.includes(c);
+}
+
+const VALID_FUNCTIONS2 = ["root", "log"];
+// isFunction2: String -> Boolean
+function isFunction2(c) {
+    return VALID_FUNCTIONS2.includes(c);
 }
 
 // validExpression: Array[Number...] Array[String...] -> Boolean
@@ -260,9 +266,7 @@ function applyOp(op, left, right) {
         case "*":
             return left * right;
         case "/":
-            if (right === 0) {
-                throw new Error("Error 0: Division by zero");
-            }
+            if (right === 0) throw new Error("Error 0: Division by zero");
             return left / right;
         case "^":
             return Math.pow(left, right);
@@ -307,6 +311,18 @@ function applyFunction(func, n) {
     }
 }
 
+function applyFunction2(func, b, a) {
+    switch (func) {
+        case "root": // TODO: restrictions here
+            if (a < 0 && b % 2 === 0) throw new Error("Error 11: '" + a + "' is outside of the domain for root");
+            return Math.pow(a, 1 / b);
+        case "log":
+            if (b <= 0) throw new Error("Error 12: base of log must be positive");
+            return Math.log(a) / Math.log(b);
+    }
+}
+
+// test cases
 // order of operations
 console.log(evaluate("1+3^3*4".split(""))); // 109
 console.log(evaluate("1.4+2.6".split(""))); // 4
@@ -456,9 +472,9 @@ document.addEventListener("keydown", e => {
 
     if (node instanceof Map && node.has("end")) {
         let c = path.join("");
-        if (validFunctions.includes(c)) {
+        if (VALID_FUNCTIONS.includes(c)) {
             addFuncToInput(c);
-        } else if (validConstants.includes(c)) {
+        } else if (VALID_CONSTANTS.includes(c)) {
             addConstToInput(c);
         } else {
             throw Error(`Error: '${c}' is neither a function nor a constant`);
@@ -497,9 +513,6 @@ document.addEventListener("keydown", e => {
     } else if (key === "%") {
         addToInput("%");
     }
-    // else if (key === "Shift") {
-    //     shiftToggle()
-    // }
 });
 
 
@@ -515,6 +528,8 @@ document.addEventListener("keydown", e => {
 // TODO: make it so sin(60)=sqrt(3)/2 exactly
 // TODO: also add pi/3 and fractions
 // TODO: add variables (A, B, C, ... Z)
+// TODO: add functions that take 2 arguments
+// TODO: add navigation
 // index.html
 const input = document.getElementById("input");
 const output = document.getElementById("output");
@@ -526,60 +541,65 @@ function evaluateHTML() {
     ans = parseFloat(output.value);
 }
 
+let cToVisual = new Map([
+    // normal
+    ["*", "×"],
+    ["E", "×10^"],
+    ["sqr", "²"],
+    ["cube", "³"],
+    ["rec", "⁻¹"],
+    ["exp", "e^"],
+    ["expt10", "10^"],
+
+    // constants
+    ["pi", "π"],
+    ["e", "e"],
+    ["phi", "Φ"],
+    ["ans", "ANS"],
+
+    // functions
+    ["sqrt", "√"],
+    ["cbrt", "³√"],
+    ["sin", "sin"],
+    ["cos", "cos"],
+    ["tan", "tan"],
+    ["asin", "sin⁻¹"],
+    ["acos", "cos⁻¹"],
+    ["atan", "tan⁻¹"],
+    ["ln", "ln"],
+    ["lg", "log"],
+    ["abs", "abs"],
+
+    // complex functions
+    ["root", "root"],
+    ["log", "log"],
+]);
+
 function addToInput(c) {
     output.value = "";
     stack.push(c);
-    switch (c) {
-        case "*":
-            input.value += "×";
-            break;
-        case "E":
-            input.value += "×10^";
-            break;
-        case "sqr":
-            input.value += "²"
-            break;
-        case "cube":
-            input.value += "³"
-            break;
-        case "rec":
-            input.value += "⁻¹"
-            break;
-        case "exp":
-            input.value += "e^"
-            break;
-        case "expt10":
-            input.value += "10^"
-            break;
-        default:
-            input.value += c;
+
+    if (cToVisual.has(c)) {
+        input.value += cToVisual.get(c);
+    } else {
+        input.value += c;
     }
 }
 
 function addConstToInput(c) {
     output.value = "";
-    switch (c) {
-        case "pi":
-            stack.push("pi");
-            input.value += "π";
-            break;
-        case "e":
-            stack.push("e");
-            input.value += "e";
-            break;
-        case "phi":
-            stack.push("phi");
-            input.value += "Φ";
-            break;
-        case "ans":
-            stack.push("ans");
-            input.value += "ANS";
+    stack.push(c);
+
+    if (cToVisual.has(c)) {
+        input.value += cToVisual.get(c);
+    } else {
+        throw new Error("Error: " + c + " is not in hashmap");
     }
 
-    if (/^var[A-Z]$/.test(c)) {
-        stack.push(c);
-        input.value += c[3];
-    }
+    // if (/^var[A-Z]$/.test(c)) {
+    //     stack.push(c);
+    //     input.value += c[3];
+    // }
 }
 
 function addFuncToInput(c) {
@@ -587,35 +607,11 @@ function addFuncToInput(c) {
     stack.push(c);
     stack.push("(");
 
-    switch (c) {
-        case "sqrt":
-            input.value += "√"
-            break;
-        case "cbrt":
-            input.value += "³√"
-            break;
-        case "sin":
-        case "cos":
-        case "tan":
-            input.value += c;
-            break;
-        case "asin":
-        case "acos":
-        case "atan":
-            input.value += c.slice(1) + "⁻¹";
-            break;
-        case "ln":
-            input.value += "ln"
-            break;
-        case "lg":
-            input.value += "log"
-            break;
-        case "abs":
-            input.value += "abs"
-            break;
+    if (cToVisual.has(c)) {
+        input.value += `${cToVisual.get(c)}(`;
+    } else {
+        throw new Error("Error: " + c + " is not in hashmap");
     }
-
-    input.value += "(";
 }
 
 function addFunc2ToInput(c) {
@@ -623,16 +619,11 @@ function addFunc2ToInput(c) {
     stack.push(c)
     stack.push("(")
 
-    switch (c) {
-        case "root":
-            input.value += "root"
-            break;
-        case "log":
-            input.value += "log"
-            break;
+    if (cToVisual.has(c)) {
+        input.value += `${cToVisual.get(c)}(`;
+    } else {
+        throw new Error("Error: " + c + " is not in hashmap");
     }
-
-    input.value += "(";
 }
 
 function clearInput() {
@@ -642,36 +633,14 @@ function clearInput() {
 }
 
 function deleteInput() {
-    output.value = "";
+    output.value = ""; // TODO: can be refactored
     let c = stack.pop();
-    let visualLength;
-    if (c === "sqr" || c === "cube" || c === "pi" || c === "phi") {
-        visualLength = 1;
-    } else if (c === "exp") {
-        visualLength = 2;
-    } else if (c === "expt10") {
-        visualLength = 3;
-    } else if (c === "E") {
-        visualLength = 4;
-    } else {
-        visualLength = c.length;
-    }
+    let visualLength = cToVisual.has(c) ? cToVisual.get(c).length : c.length;
     input.value = input.value.slice(0, -visualLength);
 
     if (c === "(" && isFunction(stack.at(-1))) {
         let f = stack.pop();
-        let visualFuncLength;
-        if (f === "sqrt") {
-            visualFuncLength = 1;
-        } else if (f === "cbrt") {
-            visualFuncLength = 2;
-        } else if (f === "lg") {
-            visualFuncLength = 3;
-        } else if (f === "asin" || f === "acos" || f === "atan") {
-            visualFuncLength = 5;
-        } else {
-            visualFuncLength = f.length;
-        }
+        let visualFuncLength = cToVisual.has(f) ? cToVisual.get(f).length : f.length;
         input.value = input.value.slice(0, -visualFuncLength);
     }
 }
@@ -703,41 +672,68 @@ document.querySelectorAll(".shiftOff").forEach(btn => {
 
 
 // settings
-// calculator gradient change
+const CALCULATOR_GRADIENTS = ["glacier-water", "cotton-candy", "green-tea", "sago-taro"];
+const BUTTON_GRADIENTS = ["red", "yellow", "green", "blue", "purple", "black", "white"];
 document.addEventListener("DOMContentLoaded", () => {
-    const calcGradient = localStorage.getItem("calculator-gradient");
-    const border = document.querySelector(".calculator-border");
-
-    if (!border || !calcGradient) return;
-
-    border.classList.remove(...["water", "cotton-candy", "green-tea"]);
-    border.classList.add(calcGradient);
-});
-
-// calculator gradient glow
-document.addEventListener("DOMContentLoaded", () => {
-    const calcGradState = localStorage.getItem("calc-grad-state");
-    const border = document.querySelector(".calculator-border");
-
-    if (!border) return;
-
-    if (calcGradState === "true") {
-        border.classList.add("calc-grad-state-true");
-    } else {
-        border.classList.remove("calc-grad-state-true");
-    }
-});
-
-// light mode
-document.addEventListener("DOMContentLoaded", () => {
-    const modeState = localStorage.getItem("light-mode-state");
+    // light mode
     const root = document.documentElement;
+    const setting2 = localStorage.getItem("setting:light-mode");
+    const useLightMode = setting2 === "true";
 
-    if (!root) return;
-
-    if (modeState === "true") {
+    if (useLightMode) {
         root.classList.add("light-mode");
     } else {
         root.classList.remove("light-mode");
     }
+
+    // hide calculator body
+    const calculator = document.querySelector(".calculator");
+    const setting3 = localStorage.getItem("setting:hide-calc-bg");
+    const hideCalcBody = setting3 === "true";
+
+    if (hideCalcBody) {
+        calculator.classList.add("hide-calc");
+    } else {
+        calculator.classList.remove("hide-calc");
+    }
+
+    // button gradient glow // TODO: make button glow turn off
+    const buttons = calculator.querySelectorAll("button");
+    const setting4 = localStorage.getItem("setting:btn-glow-state");
+    const showBtnGlow = setting4 === "true";
+
+    if (showBtnGlow) {
+        for (let button of buttons) {
+            button.classList.add("show-button-glow");
+        }
+    } else {
+        for (let button of buttons) {
+            button.classList.remove("show-button-glow");
+        }
+    }
+
+    // button gradient change
+    const btnGradient = localStorage.getItem("setting:button-gradient");
+
+    for (let button of buttons) {
+        button.classList.remove([...BUTTON_GRADIENTS]);
+        button.classList.add(btnGradient);
+    }
+
+    // calculator gradient glow
+    const border = document.querySelector(".calculator-border");
+    const setting5 = localStorage.getItem("setting:calc-glow-state");
+    const showCalcGlow = setting5 === "true";
+
+    if (showCalcGlow) {
+        border.classList.add("show-calculator-glow");
+    } else {
+        border.classList.remove("show-calculator-glow");
+    }
+
+    // calculator gradient change
+    const calcGradient = localStorage.getItem("setting:calculator-gradient");
+
+    border.classList.remove([...CALCULATOR_GRADIENTS]);
+    border.classList.add(calcGradient);
 });
