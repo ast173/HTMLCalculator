@@ -107,8 +107,8 @@ resetButton.addEventListener("click", () => {
     document.getElementById("calc-glow-on").checked = true;
     localStorage.setItem("setting:calc-glow-state", "true");
 
-    document.getElementById("calc-grad-drop").value = "water";
-    localStorage.setItem("setting:calculator-gradient", "water");
+    document.getElementById("calc-grad-drop").value = "glacier-water";
+    localStorage.setItem("setting:calculator-gradient", "glacier-water");
     document.getElementById("btn-grad-drop").value = "blue";
     localStorage.setItem("setting:button-gradient", "blue");
 })

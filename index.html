@@ -22,8 +22,10 @@
 
                 <div class="button-group-1">
                     <button id="shift" onclick="shiftToggle()">Shift</button>
-                    <button id="left-arrow" onclick="'(left)'"><</button>
-                    <button id="right-arrow" onclick="'(right)'">></button>
+                    <button id="left-arrow" class="whenShiftOff" onclick="moveLeft()"><-</button>
+                    <button id="start" class="whenShiftOn" onclick="moveStart()">Start</button>
+                    <button id="right-arrow" class="whenShiftOff" onclick="moveRight()">-></button>
+                    <button id="end" class="whenShiftOn" onclick="moveEnd()">End</button>
                     <button id="settings" onclick="location.href='settings.html'">Settings</button>
                 </div>
 
@@ -35,7 +37,7 @@
                     <button id="exp" class="whenShiftOn" onclick="addToInput('exp')">eˣ</button>
                     <button id="lg" class="whenShiftOff" onclick="addFuncToInput('lg')">log₁₀x</button>
                     <button id="expt10" class="whenShiftOn" onclick="addToInput('expt10')">10ˣ</button>
-                    <button id="log" onclick="addFunc2ToInput('log')">logᵧx</button>
+                    <button id="log" onclick="addFunc2ToInput('log')" disabled>logᵧx</button>
                     <button id="x10^" onclick="addToInput('E')">x10ˣ</button>
 
                     <button id="sin" class="whenShiftOff" onclick="addFuncToInput('sin')">sin</button>
@@ -51,7 +53,7 @@
                     <button id="cbr" onclick="addToInput('cube')">x³</button>
                     <button id="sqrt" onclick="addFuncToInput('sqrt')">√x</button>
                     <button id="cbrt" onclick="addFuncToInput('cbrt')">³√x</button>
-                    <button id="root" onclick="addFunc2ToInput('root')">ʸ√x</button>
+                    <button id="root" onclick="addFunc2ToInput('root')" disabled>ʸ√x</button>
 
                     <button id="(" onclick="addToInput('(')">(</button>
                     <button id=")" onclick="addToInput(')')">)</button>
@@ -83,7 +85,7 @@
 
                     <button id="0" class="rowspan-2" onclick="addToInput('0')">0</button>
                     <button id="." onclick="addToInput('.')">.</button>
-                    <button id="ans" onclick="getAns()">ANS</button>
+                    <button id="ans" onclick="addConstToInput('ans')">ANS</button>
                     <button id="=" onclick="evaluateHTML()">=</button>
                 </div>
                 <hr>

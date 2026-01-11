@@ -27,8 +27,8 @@ function tryEvaluate(expression) {
 
     for (let i = 0; i < expression.length; i++) {
         let c = expression[i];
-        // let next = expression[i + 1]; // TODO: use these?
-        // let before = expression[i + 1];
+        let nextC = expression[i + 1];
+        let lastC = expression[i - 1];
 
         if (c === " ") continue;
 
@@ -51,7 +51,7 @@ function tryEvaluate(expression) {
             if (value === ".") value = 0;
 
             values.push(parseFloat(value));
-        } else if (c === "-" && (i === 0 || isOperator(expression[i - 1]) || expression[i - 1] === "(")) {
+        } else if (c === "-" && (i === 0 || isOperator(lastC) || lastC === "(")) {
             values.push(0);
             operators.push("-");
         } else if (isOperator(c)) {
@@ -60,10 +60,10 @@ function tryEvaluate(expression) {
             }
             operators.push(c);
         } else if (c === "(") {
-            if (i !== 0 && !isOperator(expression[i - 1]) && expression[i - 1] !== ")") {
+            if (i !== 0 && !isOperator(lastC) && lastC !== ")") {
                 operators.push("*");
             }
-            if (isConstant(expression[i - 1])) {
+            if (isConstant(lastC)) {
                 operators.push("*");
             }
             operators.push(c);
@@ -72,17 +72,17 @@ function tryEvaluate(expression) {
                 reduceExpression();
             }
             operators.pop();
-            if (i < expression.length - 1 && !isOperator(expression[i + 1])) {
+            if (i < expression.length - 1 && !isOperator(nextC)) {
                 operators.push("*");
             }
-            if (isConstant(expression[i + 1])) {
+            if (isConstant(nextC)) {
                 operators.push("*");
             }
         }
 
         // constants
         else if (isConstant(c)) {
-            if (i !== 0 && !isOperator(expression[i - 1]) && !["(", ")"].includes(expression[i - 1])) {
+            if (i !== 0 && !isOperator(lastC) && !["(", ")"].includes(lastC)) {
                 operators.push("*");
             }
 
@@ -97,7 +97,7 @@ function tryEvaluate(expression) {
                 values.push(ans);
             }
 
-            if (i < expression.length - 1 && !isOperator(expression[i + 1]) && !["(", ")"].includes(expression[i - 1])) {
+            if (i < expression.length - 1 && !isOperator(nextC) && !["(", ")"].includes(lastC)) {
                 operators.push("*");
             }
         }
@@ -139,7 +139,7 @@ function tryEvaluate(expression) {
 
         // functions
         else if (isFunction(c)) {
-            if (i !== 0 && !isOperator(expression[i - 1])) {
+            if (i !== 0 && !isOperator(lastC)) {
                 operators.push("*");
             }
             
@@ -181,7 +181,7 @@ function tryEvaluate(expression) {
 
     while (operators.at(-1) === "(") {
         operators.pop();
-    } // TODO: this might ruin other stuff
+    }
 
     while (validExpression(values, operators)) {
         reduceExpression();
@@ -196,13 +196,12 @@ function tryEvaluate(expression) {
     return res;
 }
 
-// Let a Char be a String of length 1
-// isDigit: Char -> Boolean
+// isDigit: String -> Boolean
 function isDigit(c) {
     return /^[0-9]$/.test(c);
 }
 
-// isOperator: Char -> Boolean
+// isOperator: String -> Boolean
 function isOperator(c) {
     return /^[+\-*/^E]$/.test(c);
 }
@@ -230,7 +229,7 @@ function validExpression(values, operators) {
     return operators.length >= 1 && values.length >= 2;
 }
 
-// shouldDoReduction: Char Char -> Boolean
+// shouldDoReduction: String String -> Boolean
 function shouldDoReduction(top, current) {
     if (top === "(") return false;
     if (current === ")") return true;
@@ -238,7 +237,7 @@ function shouldDoReduction(top, current) {
     return getPriority(top) >= getPriority(current);
 }
 
-// getPriority: Char -> Number
+// getPriority: String -> Number
 // priority: (functions, %, !) > (^, E) > (*, /) > (+, -)
 function getPriority(op) {
     switch (op) {
@@ -256,7 +255,7 @@ function getPriority(op) {
     }
 }
 
-// applyOp: Char Number Number -> Number
+// applyOp: String Number Number -> Number
 function applyOp(op, left, right) {
     switch (op) {
         case "+":
@@ -400,21 +399,14 @@ console.log(evaluate(["rec", "(", "2", "0", ")"])); // 0.05
 let path = [];
 const END = ["end", true]
 let funcMap = new Map([
-    ["e", new Map([END])],
-    ["p", new Map([
-        ["i", new Map([END])],
-        ["h", new Map([
-            ["i", new Map([END])]
-        ])],
-    ])],
-    ["t", new Map([
-        ["a", new Map([
-            ["n", new Map([END])]
-        ])]
-    ])],
     ["a", new Map([
         ["b", new Map([
             ["s", new Map([END])]
+        ])],
+        ["c", new Map([
+            ["o", new Map([
+                ["s", new Map([END])]
+            ])]
         ])],
         ["n", new Map([
             ["s", new Map([END])]
@@ -424,23 +416,11 @@ let funcMap = new Map([
                 ["n", new Map([END])]
             ])]
         ])],
-        ["c", new Map([
-            ["o", new Map([
-                ["s", new Map([END])]
-            ])]
-        ])],
         ["t", new Map([
             ["a", new Map([
                 ["n", new Map([END])]
             ])]
         ])],
-    ])],
-    ["l", new Map([
-        ["o", new Map([
-            ["g", new Map([END])]
-        ])],
-        ["g", new Map([END])],
-        ["n", new Map([END])],
     ])],
     ["c", new Map([
         ["b", new Map([
@@ -452,16 +432,93 @@ let funcMap = new Map([
             ["s", new Map([END])]
         ])],
     ])],
+    ["e", new Map([END])],
+    ["l", new Map([
+        ["g", new Map([END])],
+        ["n", new Map([END])],
+        ["o", new Map([
+            ["g", new Map([END])]
+        ])],
+    ])],
+    ["p", new Map([
+        ["i", new Map([END])],
+        ["h", new Map([
+            ["i", new Map([END])]
+        ])],
+    ])],
     ["s", new Map([
+        ["i", new Map([
+            ["n", new Map([END])]
+        ])],
         ["q", new Map([
             ["r", new Map([
                 ["t", new Map([END])],
             ])]
         ])],
-        ["i", new Map([
-            ["n", new Map([END])]
-        ])],
     ])],
+    ["t", new Map([
+        ["a", new Map([
+            ["n", new Map([END])]
+        ])]
+    ])],
+    // ["v", new Map([
+    //     ["a", new Map([
+    //         ["r", new Map([
+    //             ["a", new Map([END])],
+    //             ["b", new Map([END])],
+    //             ["c", new Map([END])],
+    //             ["d", new Map([END])],
+    //             ["e", new Map([END])],
+    //             ["f", new Map([END])],
+    //             ["g", new Map([END])],
+    //             ["h", new Map([END])],
+    //             ["i", new Map([END])],
+    //             ["j", new Map([END])],
+    //             ["k", new Map([END])],
+    //             ["l", new Map([END])],
+    //             ["m", new Map([END])],
+    //             ["n", new Map([END])],
+    //             ["o", new Map([END])],
+    //             ["p", new Map([END])],
+    //             ["q", new Map([END])],
+    //             ["r", new Map([END])],
+    //             ["s", new Map([END])],
+    //             ["t", new Map([END])],
+    //             ["u", new Map([END])],
+    //             ["v", new Map([END])],
+    //             ["w", new Map([END])],
+    //             ["x", new Map([END])],
+    //             ["y", new Map([END])],
+    //             ["z", new Map([END])],
+    //             ["A", new Map([END])],
+    //             ["B", new Map([END])],
+    //             ["C", new Map([END])],
+    //             ["D", new Map([END])],
+    //             ["E", new Map([END])],
+    //             ["F", new Map([END])],
+    //             ["G", new Map([END])],
+    //             ["H", new Map([END])],
+    //             ["I", new Map([END])],
+    //             ["J", new Map([END])],
+    //             ["K", new Map([END])],
+    //             ["L", new Map([END])],
+    //             ["M", new Map([END])],
+    //             ["N", new Map([END])],
+    //             ["O", new Map([END])],
+    //             ["P", new Map([END])],
+    //             ["Q", new Map([END])],
+    //             ["R", new Map([END])],
+    //             ["S", new Map([END])],
+    //             ["T", new Map([END])],
+    //             ["U", new Map([END])],
+    //             ["V", new Map([END])],
+    //             ["W", new Map([END])],
+    //             ["X", new Map([END])],
+    //             ["Y", new Map([END])],
+    //             ["Z", new Map([END])],
+    //         ])]
+    //     ])]
+    // ])],
 ]);
 
 document.addEventListener("keydown", e => {
@@ -512,6 +569,16 @@ document.addEventListener("keydown", e => {
         addToInput("!");
     } else if (key === "%") {
         addToInput("%");
+    } else if (key === "ArrowLeft") {
+        moveLeft();
+    } else if (key === "ArrowRight") {
+        moveRight();
+    } else if (key === "Home") {
+        e.preventDefault();
+        moveStart();
+    } else if (key === "End") {
+        e.preventDefault();
+        moveEnd();
     }
 });
 
@@ -527,21 +594,36 @@ document.addEventListener("keydown", e => {
 
 // TODO: make it so sin(60)=sqrt(3)/2 exactly
 // TODO: also add pi/3 and fractions
-// TODO: add variables (A, B, C, ... Z)
+// TODO: make variables work
 // TODO: add functions that take 2 arguments
-// TODO: add navigation
 // index.html
 const input = document.getElementById("input");
 const output = document.getElementById("output");
 let stack = [];
 let ans = 0;
 
-function evaluateHTML() {
-    output.value = evaluate(stack);
-    ans = parseFloat(output.value);
-}
-
 let cToVisual = new Map([
+    // normal no change
+    ["0", "0"],
+    ["1", "1"],
+    ["2", "2"],
+    ["3", "3"],
+    ["4", "4"],
+    ["5", "5"],
+    ["6", "6"],
+    ["7", "7"],
+    ["8", "8"],
+    ["9", "9"],
+    [".", "."],
+    ["+", "+"],
+    ["-", "-"],
+    ["/", "/"],
+    ["^", "^"],
+    ["!", "!"],
+    ["%", "%"],
+    ["(", "("],
+    [")", ")"],
+
     // normal
     ["*", "×"],
     ["E", "×10^"],
@@ -575,80 +657,101 @@ let cToVisual = new Map([
     ["log", "log"],
 ]);
 
+// variables
+for (let i = 0; i < 26; i++) {
+    let uppercase = String.fromCharCode(65 + i);
+    let lowercase = String.fromCharCode(97 + i);
+    cToVisual.set(`var_${uppercase}`, uppercase);
+    cToVisual.set(`var_${lowercase}`, lowercase);
+}
+
+for (let i of [0x03B1, 0x03B2, 0x03B3, 0x0393, 0x0394, 0x03B4, 0x03B5, 0x03B6, 0x03B8, 0x03BB, 0x03BC, 0x03C3, 0x03A3, 0x03C4, 0x03C9, 0x03A9]) {
+    let greekChar = String.fromCharCode(i);
+    cToVisual.set(`var_${greekChar}`, greekChar);
+}
+
+function evaluateHTML() {
+    output.value = evaluate(stack);
+    ans = parseFloat(output.value);
+    pointer = 0;
+}
+
 function addToInput(c) {
     output.value = "";
-    stack.push(c);
+
+    if (pointer === 0) {
+        stack.push(c);
+    } else {
+        let start = stack.slice(0, pointer);
+        start.push(c)
+        let end = stack.slice(pointer);
+        stack = start.concat(end);
+    }
 
     if (cToVisual.has(c)) {
-        input.value += cToVisual.get(c);
+        input.value = stack.reduce((acc, c) => acc + cToVisual.get(c), "");
     } else {
-        input.value += c;
+        throw new Error("Error: " + c + " is not in hashmap");
     }
 }
 
 function addConstToInput(c) {
-    output.value = "";
-    stack.push(c);
-
-    if (cToVisual.has(c)) {
-        input.value += cToVisual.get(c);
-    } else {
-        throw new Error("Error: " + c + " is not in hashmap");
-    }
-
-    // if (/^var[A-Z]$/.test(c)) {
-    //     stack.push(c);
-    //     input.value += c[3];
-    // }
+    addToInput(c);
 }
 
 function addFuncToInput(c) {
     output.value = "";
-    stack.push(c);
-    stack.push("(");
+
+    if (pointer === 0) {
+        stack.push(c);
+        stack.push("(");
+    } else {
+        let start = stack.slice(0, pointer);
+        start.push(c);
+        start.push("(");
+        let end = stack.slice(pointer);
+        stack = start.concat(end);
+    }
 
     if (cToVisual.has(c)) {
-        input.value += `${cToVisual.get(c)}(`;
+        input.value = stack.reduce((acc, c) => acc + cToVisual.get(c), "");
     } else {
         throw new Error("Error: " + c + " is not in hashmap");
     }
 }
 
-function addFunc2ToInput(c) {
-    output.value = "";
-    stack.push(c)
-    stack.push("(")
-
-    if (cToVisual.has(c)) {
-        input.value += `${cToVisual.get(c)}(`;
-    } else {
-        throw new Error("Error: " + c + " is not in hashmap");
-    }
-}
+// function addFunc2ToInput(c) {
+//     output.value = "";
+//     stack.push(c)
+//     stack.push("(")
+//
+//     if (cToVisual.has(c)) {
+//         input.value += `${cToVisual.get(c)}(`;
+//     } else {
+//         throw new Error("Error: " + c + " is not in hashmap");
+//     }
+// }
 
 function clearInput() {
     output.value = "";
     input.value = "";
     stack.length = 0;
+    pointer = 0;
 }
 
 function deleteInput() {
-    output.value = ""; // TODO: can be refactored
-    let c = stack.pop();
-    let visualLength = cToVisual.has(c) ? cToVisual.get(c).length : c.length;
-    input.value = input.value.slice(0, -visualLength);
-
-    if (c === "(" && isFunction(stack.at(-1))) {
-        let f = stack.pop();
-        let visualFuncLength = cToVisual.has(f) ? cToVisual.get(f).length : f.length;
-        input.value = input.value.slice(0, -visualFuncLength);
-    }
-}
-
-function getAns() {
     output.value = "";
-    stack.push("ans");
-    input.value += "ANS";
+
+    if (pointer === -stack.length) return;
+
+    function deleteC() {
+        let c = stack.splice(pointer - 1, 1)[0];
+        input.value = stack.reduce((acc, c) => acc + cToVisual.get(c), "");
+        return c;
+    }
+
+    let justDeleted = deleteC();
+    if (justDeleted === "(" && isFunction(stack.at(pointer - 1))) deleteC();
 }
 
 let shiftEnabled = false;
@@ -662,6 +765,26 @@ shiftButton.onclick = () => shiftToggle()
 document.querySelectorAll(".shiftOff").forEach(btn => {
     btn.classList.toggle("hidden", shiftEnabled);
 });
+
+// navigation
+let pointer = 0;
+function moveLeft() {
+    if (pointer <= -stack.length) return;
+    pointer--;
+}
+
+function moveRight() {
+    if (pointer >= 0) return;
+    pointer++;
+}
+
+function moveStart() {
+    pointer = -stack.length;
+}
+
+function moveEnd() {
+    pointer = 0;
+}
 
 
 
@@ -697,7 +820,7 @@ document.addEventListener("DOMContentLoaded", () => {
         calculator.classList.remove("hide-calc");
     }
 
-    // button gradient glow // TODO: make button glow turn off
+    // button gradient glow
     const buttons = calculator.querySelectorAll("button");
     const setting4 = localStorage.getItem("setting:btn-glow-state");
     const showBtnGlow = setting4 === "true";
@@ -716,7 +839,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const btnGradient = localStorage.getItem("setting:button-gradient");
 
     for (let button of buttons) {
-        button.classList.remove([...BUTTON_GRADIENTS]);
+        button.classList.remove(...BUTTON_GRADIENTS);
         button.classList.add(btnGradient);
     }
 
@@ -734,6 +857,6 @@ document.addEventListener("DOMContentLoaded", () => {
     // calculator gradient change
     const calcGradient = localStorage.getItem("setting:calculator-gradient");
 
-    border.classList.remove([...CALCULATOR_GRADIENTS]);
+    border.classList.remove(...CALCULATOR_GRADIENTS);
     border.classList.add(calcGradient);
 });

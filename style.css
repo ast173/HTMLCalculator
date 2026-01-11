@@ -2,13 +2,15 @@
     --font: "Segoe UI", Tahoma, Geneva, Verdana, serif;
     --calculator-gradient: linear-gradient(135deg, #BBD2C5, #536976, #292E49);
     --button-gradient-color: #0f0f88;
+    --button-disabled-color: #737373;
+    --button-disabled-bg-color: #1e2129;
 
     --body-color: rgb(16, 16, 16);
     --calculator-background-gradient: linear-gradient(135deg, #2c2c2c, #141414);
     --button-color: white;
     --button-background-color: black;
-    --button-hover-color: rgb(48, 48, 48);
-    --button-active-color: rgb(80, 80, 80);
+    --button-hover-bg-color: rgb(48, 48, 48);
+    --button-active-bg-color: rgb(80, 80, 80);
     --button-border-color: black;
 }
 
@@ -17,8 +19,8 @@
     --calculator-background-gradient: linear-gradient(135deg, #f1f1f3, #d9d9db);
     --button-color: black;
     --button-background-color: rgb(239, 239, 241);
-    --button-hover-color: rgb(244, 244, 246);
-    --button-active-color: rgb(253, 253, 255);
+    --button-hover-bg-color: rgb(244, 244, 246);
+    --button-active-bg-color: rgb(253, 253, 255);
     --button-border-color: white;
 }
 
@@ -55,7 +57,7 @@ body {
 }
 
 /*calculator gradients*/
-.calculator-border.water {
+.calculator-border.glacier-water {
     --calculator-gradient: linear-gradient(135deg, #bbd2c5, #536976, #292e49);
 }
 
@@ -121,11 +123,16 @@ button {
 }
 
 button:hover {
-    background-color: var(--button-hover-color);
+    background-color: var(--button-hover-bg-color);
 }
 
 button:active {
-    background-color: var(--button-active-color);
+    background-color: var(--button-active-bg-color);
+}
+
+button:disabled {
+    color: var(--button-disabled-color);
+    background-color: var(--button-disabled-bg-color);
 }
 
 /*button gradient animation*/
@@ -230,7 +237,7 @@ button.whenShiftOn {
 }
 
 .shift-enabled #shift {
-    background-color: var(--button-active-color);
+    background-color: var(--button-active-bg-color);
 }
 
 .shift-enabled .whenShiftOff {
