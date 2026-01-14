@@ -2,8 +2,6 @@
     --font: "Segoe UI", Tahoma, Geneva, Verdana, serif;
     --calculator-gradient: linear-gradient(135deg, #BBD2C5, #536976, #292E49);
     --button-gradient-color: #0f0f88;
-    --button-disabled-color: #737373;
-    --button-disabled-bg-color: #1e2129;
 
     --body-color: rgb(16, 16, 16);
     --calculator-background-gradient: linear-gradient(135deg, #2c2c2c, #141414);
@@ -12,6 +10,8 @@
     --button-hover-bg-color: rgb(48, 48, 48);
     --button-active-bg-color: rgb(80, 80, 80);
     --button-border-color: black;
+    --button-disabled-color: #737373;
+    --button-disabled-bg-color: #1e2129;
 }
 
 :root.light-mode {
@@ -22,17 +22,20 @@
     --button-hover-bg-color: rgb(244, 244, 246);
     --button-active-bg-color: rgb(253, 253, 255);
     --button-border-color: white;
+    --button-disabled-color: #1e2129;
+    --button-disabled-bg-color: #9f9f9f;
 }
 
 /*background*/
 body {
-    background-color: var(--body-color);
     display: flex;
-
-    min-height: 100vh;
-
     align-items: center;
     justify-content: center;
+
+    height: 100vh;
+    overflow: hidden;
+
+    background-color: var(--body-color);
 }
 
 /*calculator border div (gradient)*/
@@ -112,6 +115,7 @@ button {
 
     color: var(--button-color);
     background: var(--button-background-color);
+    border-color: var(--button-border-color);
 
     cursor: pointer;
     position: relative;
@@ -150,15 +154,20 @@ button::before, button::after {
     border-radius:5px;
     padding: 3px;
     background-image: conic-gradient(from var(--angle),
-    var(--button-border-color),
-    var(--button-gradient-color),
-    var(--button-border-color));
+                                          var(--button-border-color),
+                                          var(--button-gradient-color),
+                                          var(--button-border-color));
     animation: 3s spin linear infinite;
 }
 
-button.show-button-glow::before {
+button::before {
     filter: blur(3px);
     opacity: 0.75;
+}
+
+button.hide-button-glow::before {
+    filter: none;
+    opacity: 1;
 }
 
 @property --angle {

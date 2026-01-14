@@ -8,11 +8,15 @@
         <title>Calculator</title>
 
         <link rel="stylesheet" href="style.css">
-        <script type="text/javascript" src="index.js" defer></script>
+<!--        <script type="text/javascript" src="index.js" defer></script>-->
+        <script type="module" src="./modules/html.js" defer></script>
+<!--        <script type="module" src="./modules/keyboardInputs.js" defer></script>-->
+        <script type="module" src="./modules/calculations.js" defer></script>
+        <script type="module" src="./modules/loadSettings.js" defer></script>
     </head>
 
     <body>
-        <div class="calculator-border">
+        <div class="calculator-border show-calculator-glow">
             <div class="calculator">
                 <div class="displays">
                     <textarea id="input" rows="4" readonly></textarea>
@@ -26,7 +30,9 @@
                     <button id="start" class="whenShiftOn" onclick="moveStart()">Start</button>
                     <button id="right-arrow" class="whenShiftOff" onclick="moveRight()">-></button>
                     <button id="end" class="whenShiftOn" onclick="moveEnd()">End</button>
-                    <button id="settings" onclick="location.href='settings.html'">Settings</button>
+                    <button id="settings" class="whenShiftOff" onclick="location.href='./settings/settings.html'">Settings</button>
+                    <button id="back-to-home" class="whenShiftOn" onclick="window.close()">Exit</button>
+<!--                    <button id="back-to-home" class="whenShiftOn" onclick="location.href='../index.html'">Exit</button>-->
                 </div>
 
 <!--                top part -->
