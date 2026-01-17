@@ -1,5 +1,5 @@
 export { evaluate, VALID_CONSTANTS, VALID_FUNCTIONS, isFunction }
-import { ans } from "./html.js";
+import { ans, varMap } from "./surface.js";
 
 // evaluate: Array[String...] -> Number | String
 function evaluate(expression) {
@@ -98,6 +98,8 @@ function tryEvaluate(expression) {
                 values.push(GOLDEN_RATIO);
             } else if (c === "ans") {
                 values.push(ans);
+            } else if (c.match(/^v[a-gxy]$/)) {
+                values.push(varMap.get(c));
             }
 
             if (i < expression.length - 1 && !isOperator(nextC) && !["(", ")"].includes(lastC)) {
@@ -206,7 +208,9 @@ function isFunction(c) {
     return VALID_FUNCTIONS.includes(c);
 }
 
-const VALID_CONSTANTS = ["pi", "e", "phi", "ans"];
+const VALID_CONSTANTS = ["pi", "e", "phi", "ans",
+    "va", "vb", "vc", "vd", "ve", "vf", "vg", "vx", "vy", "vz",
+    "vua", "vub", "vuc", "vud", "vue", "vuf", "vug", "vux", "vuy", "vuz"];
 // isConstant: String -> Boolean
 function isConstant(c) {
     return VALID_CONSTANTS.includes(c);

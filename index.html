@@ -8,10 +8,9 @@
         <title>Calculator</title>
 
         <link rel="stylesheet" href="style.css">
-<!--        <script type="text/javascript" src="index.js" defer></script>-->
-        <script type="module" src="./modules/html.js" defer></script>
+        <script type="module" src="modules/surface.js" defer></script>
 <!--        <script type="module" src="./modules/keyboardInputs.js" defer></script>-->
-        <script type="module" src="./modules/calculations.js" defer></script>
+        <script type="module" src="modules/deep.js" defer></script>
         <script type="module" src="./modules/loadSettings.js" defer></script>
     </head>
 
@@ -31,8 +30,8 @@
                     <button id="right-arrow" class="whenShiftOff" onclick="moveRight()">-></button>
                     <button id="end" class="whenShiftOn" onclick="moveEnd()">End</button>
                     <button id="settings" class="whenShiftOff" onclick="location.href='./settings/settings.html'">Settings</button>
-                    <button id="back-to-home" class="whenShiftOn" onclick="window.close()">Exit</button>
-<!--                    <button id="back-to-home" class="whenShiftOn" onclick="location.href='../index.html'">Exit</button>-->
+                    <button id="exit" class="whenShiftOn" onclick="window.close()">Exit</button>
+<!--                    <button id="exit" class="whenShiftOn" onclick="location.href='../index.html'">Exit</button>-->
                 </div>
 
 <!--                top part -->

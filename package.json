@@ -2,7 +2,7 @@
   "name": "calculator",
   "version": "1.0.0",
   "description": "",
-  "main": "modules/index.js",
+  "main": "modules/depricated/index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },

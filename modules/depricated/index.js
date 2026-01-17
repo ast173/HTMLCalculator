@@ -592,10 +592,6 @@
 //
 //
 //
-// // TODO: make it so sin(60)=sqrt(3)/2 exactly
-// // TODO: also add pi/3 and fractions
-// // TODO: make variables work
-// // TODO: add functions that take 2 arguments
 // // index.html
 // const input = document.getElementById("input");
 // const output = document.getElementById("output");

@@ -1,15 +1,29 @@
-import { evaluate, isFunction, VALID_FUNCTIONS, VALID_CONSTANTS } from "./calculations.js";
+import { evaluate, isFunction, VALID_FUNCTIONS, VALID_CONSTANTS } from "./deep.js";
 export { evaluateHTML, addToInput, addConstToInput, addFuncToInput, addFunc2ToInput,
-    clearInput, deleteInput, shiftToggle, moveLeft, moveRight, moveStart, moveEnd, ans };
+    clearInput, deleteInput, shiftToggle, moveLeft, moveRight, moveStart, moveEnd,
+    ans, varMap };
 
 // TODO: make it so sin(60)=sqrt(3)/2 exactly
 // TODO: also add pi/3 and fractions
-// TODO: make variables work
+// TODO: make a set button for variables
+// TODO: store variable values to local storage
 // TODO: add functions that take 2 arguments
+// TODO: on mobile make the calculator take up the full screen and make it focus off the button after a click
 const input = document.getElementById("input");
 const output = document.getElementById("output");
 let stack = [];
 let ans = 0;
+let varMap = new Map([
+    ["va", 0],
+    ["vb", 0],
+    ["vc", 0],
+    ["vd", 0],
+    ["ve", 0],
+    ["vf", 0],
+    ["vg", 0],
+    ["vy", 0],
+    ["vz", 0],
+]);
 
 let cToVisual = new Map([
     // normal no change
@@ -68,16 +82,14 @@ let cToVisual = new Map([
 
 // variables
 for (let i = 0; i < 26; i++) {
-    let uppercase = String.fromCharCode(65 + i);
     let lowercase = String.fromCharCode(97 + i);
-    cToVisual.set(`var_${uppercase}`, uppercase);
-    cToVisual.set(`var_${lowercase}`, lowercase);
+    cToVisual.set(`v${lowercase}`, lowercase.toUpperCase());
 }
 
-for (let i of [0x03B1, 0x03B2, 0x03B3, 0x0393, 0x0394, 0x03B4, 0x03B5, 0x03B6, 0x03B8, 0x03BB, 0x03BC, 0x03C3, 0x03A3, 0x03C4, 0x03C9, 0x03A9]) {
-    let greekChar = String.fromCharCode(i);
-    cToVisual.set(`var_${greekChar}`, greekChar);
-}
+// for (let i of [0x03B1, 0x03B2, 0x03B3, 0x0393, 0x0394, 0x03B4, 0x03B5, 0x03B6, 0x03B8, 0x03BB, 0x03BC, 0x03C3, 0x03A3, 0x03C4, 0x03C9, 0x03A9]) {
+//     let greekChar = String.fromCharCode(i);
+//     cToVisual.set(`var_${greekChar}`, greekChar);
+// }
 
 function evaluateHTML() {
     output.value = evaluate(stack);
@@ -142,6 +154,7 @@ function clearInput() {
     input.value = "";
     stack.length = 0;
     pointer = 0;
+    path.length = 0;
 }
 
 function deleteInput() {
@@ -210,7 +223,7 @@ window.moveEnd = moveEnd;
 
 let path = [];
 const END = ["end", true]
-let funcMap = new Map([
+let funcTree = new Map([
     ["a", new Map([
         ["b", new Map([
             ["s", new Map([END])]
@@ -273,13 +286,24 @@ let funcMap = new Map([
             ["n", new Map([END])]
         ])]
     ])],
+    ["v", new Map([
+        ["a", new Map([END])],
+        ["b", new Map([END])],
+        ["c", new Map([END])],
+        ["d", new Map([END])],
+        ["e", new Map([END])],
+        ["f", new Map([END])],
+        ["g", new Map([END])],
+        ["y", new Map([END])],
+        ["z", new Map([END])],
+    ])],
 ]);
 
 document.addEventListener("keydown", e => {
     let key = e.key;
 
     path.push(key.toLowerCase());
-    let node = getFurthestNode(funcMap, [...path]);
+    let node = getFurthestNode(funcTree, [...path]);
 
     if (node instanceof Map && node.has("end")) {
         let c = path.join("");
@@ -293,7 +317,7 @@ document.addEventListener("keydown", e => {
         path.length = 0;
     } else if (node === false) {
         path.length = 0;
-        if (funcMap.has(key)) {
+        if (funcTree.has(key)) {
             path.push(key);
         }
     }
