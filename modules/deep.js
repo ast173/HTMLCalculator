@@ -1,5 +1,7 @@
-export { evaluate, VALID_CONSTANTS, VALID_FUNCTIONS, isFunction }
-import { ans, varMap } from "./surface.js";
+import { ans } from "./surface.js";
+import { VALID_FUNCTIONS, VALID_CONSTANTS, VALID_FUNCTIONS2,
+    varMap } from "./util.js";
+export { evaluate, isFunction };
 
 // evaluate: Array[String...] -> Number | String
 function evaluate(expression) {
@@ -192,6 +194,7 @@ function tryEvaluate(expression) {
     return res;
 }
 
+// ==================== PREDICATES ====================
 // isDigit: String -> Boolean
 function isDigit(c) {
     return /^[0-9]$/.test(c);
@@ -202,21 +205,16 @@ function isOperator(c) {
     return /^[+\-*/^E]$/.test(c);
 }
 
-const VALID_FUNCTIONS = ["sqrt", "cbrt", "sin", "cos", "tan", "asin", "acos", "atan", "ln", "lg", "abs"];
 // isFunction: String -> Boolean
 function isFunction(c) {
     return VALID_FUNCTIONS.includes(c);
 }
 
-const VALID_CONSTANTS = ["pi", "e", "phi", "ans",
-    "va", "vb", "vc", "vd", "ve", "vf", "vg", "vx", "vy", "vz",
-    "vua", "vub", "vuc", "vud", "vue", "vuf", "vug", "vux", "vuy", "vuz"];
 // isConstant: String -> Boolean
 function isConstant(c) {
     return VALID_CONSTANTS.includes(c);
 }
 
-const VALID_FUNCTIONS2 = ["root", "log"];
 // isFunction2: String -> Boolean
 function isFunction2(c) {
     return VALID_FUNCTIONS2.includes(c);
@@ -235,6 +233,7 @@ function shouldDoReduction(top, current) {
     return getPriority(top) >= getPriority(current);
 }
 
+// ==================== HELPER FUNCTIONS ====================
 // getPriority: String -> Number
 // priority: (functions, %, !) > (^, E) > (*, /) > (+, -)
 function getPriority(op) {
@@ -308,6 +307,7 @@ function applyFunction(func, n) {
     }
 }
 
+// applyFunction2: String Number Number -> Number
 function applyFunction2(func, b, a) {
     switch (func) {
         case "root": // TODO: restrictions here

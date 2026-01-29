@@ -1,5 +1,6 @@
 const CALCULATOR_GRADIENTS = ["glacier-water", "cotton-candy", "green-tea", "sago-taro"];
 const BUTTON_GRADIENTS = ["red", "yellow", "green", "blue", "purple", "black", "white"];
+
 document.addEventListener("DOMContentLoaded", () => {
     // light mode
     const root = document.documentElement;
