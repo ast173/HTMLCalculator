@@ -1,5 +1,9 @@
-export { VALID_FUNCTIONS, VALID_CONSTANTS, VALID_FUNCTIONS2,
-    varMap, cToVisual, funcTree};
+console.log("==================== UTIL ====================");
+console.log("\"./util.js\" has no imports");
+
+export { varMap }; // to "./deep.js"
+export { cToVisual, funcTree }; // to "./surface.js"
+export { VALID_FUNCTIONS, VALID_CONSTANTS, VALID_FUNCTIONS2 }; // to "./surface.js", "./deep.js"
 
 const VALID_FUNCTIONS = ["sqrt", "cbrt", "sin", "cos", "tan", "asin", "acos", "atan", "ln", "lg", "abs"];
 

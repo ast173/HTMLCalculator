@@ -1,22 +1,19 @@
+console.log("==================== SURFACE ====================");
+
 import { evaluate, isFunction } from "./deep.js";
 import { VALID_FUNCTIONS, VALID_CONSTANTS, VALID_FUNCTIONS2,
     cToVisual, funcTree } from "./util.js";
-export { evaluateHTML, addToInput, addConstToInput, addFuncToInput, addFunc2ToInput,
-    clearInput, deleteInput, shiftToggle, moveLeft, moveRight, moveStart, moveEnd,
-    ans };
+console.log("Imported items from \"./deep.js\"");
+console.log(`Test 3.1:\n${evaluate}`);
+console.log("Imported items from \"./util.js\"");
+console.log(`Test 3.2:\n${cToVisual}`);
 
-// TODO: make it so sin(60)=sqrt(3)/2 exactly
-// TODO: also add pi/3 and fractions
-// TODO: make a set button for variables
-// TODO: store variable values to local storage
-// TODO: add functions that take 2 arguments
-// TODO: on mobile make the calculator take up the full screen and make it focus off the button after a click
-// TODO: show the cursor
 const input = document.getElementById("input");
 const output = document.getElementById("output");
 let stack = [];
 let ans = 0;
 let shiftEnabled = false;
+export { ans }; // to "./deep.js"
 
 // evaluateHTML: void -> void
 function evaluateHTML() {

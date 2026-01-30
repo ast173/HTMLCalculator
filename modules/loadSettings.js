@@ -1,3 +1,7 @@
+console.log("==================== LOAD SETTINGS ====================");
+console.log("\"./loadSettings.js\" has no imports");
+console.log("\"./loadSettings.js\" has no exports");
+
 const CALCULATOR_GRADIENTS = ["glacier-water", "cotton-candy", "green-tea", "sago-taro"];
 const BUTTON_GRADIENTS = ["red", "yellow", "green", "blue", "purple", "black", "white"];
 

@@ -1,7 +1,14 @@
+console.log("==================== DEEP ====================");
+
 import { ans } from "./surface.js";
 import { VALID_FUNCTIONS, VALID_CONSTANTS, VALID_FUNCTIONS2,
     varMap } from "./util.js";
-export { evaluate, isFunction };
+console.log("Imported items from \"./surface.js\"");
+console.log(`Test 2.1:\n${undefined}`);
+console.log("Imported items from \"./util.js\"");
+console.log(`Test 2.2:\n${VALID_FUNCTIONS}`);
+
+export { evaluate, isFunction }; // to "./surface.js"
 
 // evaluate: Array[String...] -> Number | String
 function evaluate(expression) {
